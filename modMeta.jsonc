@@ -1,14 +1,14 @@
 {
-  "mod_id": "template_modid",
+  "mod_id": "tweekaroo",
   "version": "0.0.1",
   "mod_page_url": "",
-  "dll": "TemplateMod.dll",
+  "dll": "Tweekaroo.dll",
   "authors": [],
-  "icon": "textures/template_modid/icon",
+  "icon": "textures/tweekaroo/icon",
   "mappings": "",
   "dependencies": {
-    "quintessential_core": "[0.7.0,)",
-    "quintessential_data": "[0.7.0,)"
+    "quintessential_core": "[0.9.0,)",
+    "quintessential_data": "[0.9.0,)"
   },
   "conflicts": []
 }
