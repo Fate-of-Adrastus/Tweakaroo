@@ -1,6 +1,6 @@
 {
-  "tweekaroo": {
-    "": "Tweekaroo",
+  "tweakaroo": {
+    "": "Tweakaroo",
     "description": "Tweak & tune static constants in game for ease of development.",
   }
 }

@@ -1,10 +1,10 @@
 ﻿using Quintessential;
 
-namespace Tweekaroo;
+namespace Tweakaroo;
 
-internal class Tweekaroo : QuintessentialMod, IDataMod {
-    public static Tweekaroo Instance { get; }
-    public override string ModId => "tweekaroo";
+internal class Tweakaroo : QuintessentialMod, IDataMod {
+    public static Tweakaroo Instance { get; }
+    public override string ModId => "tweakaroo";
 
     public override void Load() { }
 

@@ -1,12 +1,12 @@
 {
   "profiles": {
-    "Tweekaroo": {
+    "Tweakaroo": {
       "commandName": "Project"
     },
     "Run With Opus Mutatum": {
       "commandName": "Executable",
-      "executablePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Tweekaroo\\TestEnvironment\\OpusMutatum.exe",
-      "workingDirectory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Tweekaroo\\TestEnvironment"
+      "executablePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Tweakaroo\\TestEnvironment\\OpusMutatum.exe",
+      "workingDirectory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Tweakaroo\\TestEnvironment"
     }
   }
 }

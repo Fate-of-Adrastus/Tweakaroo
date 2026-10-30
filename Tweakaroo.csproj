@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace />
-    <AssemblyName>Tweekaroo</AssemblyName>
+    <AssemblyName>Tweakaroo</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -13,6 +13,19 @@
 		<OpusDir>.\TestEnvironment\modded</OpusDir>
 		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Properties\**" />
+	  <Compile Remove="TestEnvironment\**" />
+	  <EmbeddedResource Remove="Properties\**" />
+	  <EmbeddedResource Remove="TestEnvironment\**" />
+	  <None Remove="Properties\**" />
+	  <None Remove="TestEnvironment\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="tasks.txt" />
+	</ItemGroup>
 
   <ItemGroup>
     <Reference Include="DevLightning">

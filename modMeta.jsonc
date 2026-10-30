@@ -1,10 +1,10 @@
 {
-  "mod_id": "tweekaroo",
+  "mod_id": "tweakaroo",
   "version": "0.0.1",
   "mod_page_url": "",
-  "dll": "Tweekaroo.dll",
+  "dll": "Tweakaroo.dll",
   "authors": [],
-  "icon": "textures/tweekaroo/icon",
+  "icon": "textures/tweakaroo/icon",
   "mappings": "",
   "dependencies": {
     "quintessential_core": "[0.9.0,)",
