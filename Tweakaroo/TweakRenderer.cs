@@ -73,7 +73,7 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = TextButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); } , tweak.TweakType, ref tweak.CurrentlyEdited);
+            bounds = TextInputButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); } , tweak.TweakType, ref tweak.CurrentlyEdited);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         }
@@ -87,7 +87,7 @@ internal static class TweakRenderer {
         var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
         pos += new Vector2(0, -bounds.Height);
         width = float.Max(width, bounds.Width);
-        bounds = TextButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType, ref tweak.CurrentlyEdited);
+        bounds = TextInputButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType, ref tweak.CurrentlyEdited);
         pos += new Vector2(0, bounds.Height);
         width = float.Max(width, bounds.Width);
 
@@ -136,7 +136,7 @@ internal static class TweakRenderer {
     }
 
 
-    private static Bounds2 TextButton(Vector2 pos, object currentValue, Action<string> updateValue, TweakType type, ref bool edited) {
+    private static Bounds2 TextInputButton(Vector2 pos, object currentValue, Action<string> updateValue, TweakType type, ref bool edited) {
         string current = TypeSafeString(currentValue, type);
         Bounds2 textBounds = TextureRenderer.RenderText(Utils.FormatBold(StringExtension.TranslateToUpper(current), true), Vector2.Zero, Assets.fonts.crimson_13, Color.White, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, -1, Color.White, null, int.MaxValue, calculateBounds: true, doRender: false);
         float width = 310f;
@@ -144,7 +144,7 @@ internal static class TweakRenderer {
         Bounds2 bounds = Bounds2.WithSize(pos, new Vector2(width + 20, 46));
 
         if (UIUtils.TextButton(isTooLong ? "..." : current, pos - new Vector2(0, bounds.Height / 2f), (int)float.Round(width), (int)float.Round(bounds.Height)).RenderAndCheckIfPressed(true, true)) {
-            GameLogic.instance.PushScreen(MessageBoxScreen.TextFieldBox(Bounds2.WithSize(Vector2.Zero, InputManager.screenSize), false, "", current, Translations.Translate("Set"), updateValue));
+            PushOverlayScreen(new StringInputScreen(Bounds2.WithSize(Vector2.Zero, InputManager.screenSize), current, updateValue));
             Assets.sounds.click_button.PlaySound(1f);
             edited = true;
         }
