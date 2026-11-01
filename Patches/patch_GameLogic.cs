@@ -3,8 +3,10 @@ using Mono.Cecil.Cil;
 using MonoMod;
 using MonoMod.Cil;
 using Quintessential;
+using System.Collections.Generic;
 using System.Linq;
 using Tweakaroo;
+using static MonoMod.InlineRT.MonoModRule;
 
 public class patch_GameLogic {
 
@@ -20,6 +22,7 @@ public class patch_GameLogic {
 
         cursor.EmitLdarg0();
         cursor.Index--;
+        cursor.EmitLdloc0();
         cursor.EmitCall(method.DeclaringType.Methods.First(m => m.Name.Equals("tweakaroo_RenderTweakarooOverlay")));
     }
 
@@ -43,11 +46,14 @@ public class patch_GameLogic {
     public static bool A = true;
     [Tweak("String from the test!")]
     public static string s = "When life gives you lemons, ...";
+    [Tweak]
+    [TweakPriority(1)]
+    public static BoundsPosition alingment;
 
     internal bool tweakaroo_ShouldRenderOverlay;
     private static readonly Scrollbar tweakaroo_Scrollbar = new();
     internal float tweakaroo_MenuWidth;
-    public void tweakaroo_RenderTweakarooOverlay() {
+    public void tweakaroo_RenderTweakarooOverlay(patch_ScreenUpdater updater) {
         if (TweakarooSettings.Instance.ToggleOverlay.Pressed())
             tweakaroo_ShouldRenderOverlay = !tweakaroo_ShouldRenderOverlay;
         if (!tweakaroo_ShouldRenderOverlay) return;
@@ -59,7 +65,27 @@ public class patch_GameLogic {
             Vector2 offset = new Vector2(30f, 0);
             using (RenderTargetStackManager.Push(TweakRenderer.OverlayTarget)) {
                 RenderTargetStackManager.Clear(Color.Transparent);
+                bool disableInputForMainOverlay = TweakRenderer.overlayScreens.Size() > 0;
+
+                if (disableInputForMainOverlay)
+                    InputManager.DisableInput();
                 bounds = TweakRenderer.RenderTweaks(offset);
+                if (disableInputForMainOverlay)
+                    InputManager.EnableInput();
+
+                List<IScreen> screens = TweakRenderer.overlayScreens.stack;
+                for (int i = 0; i < screens.Count; i++) {
+                    bool skip = false;
+                    for (int j = i + 1; j < screens.Count; j++) {
+                        if (screens[j].PreventLowerScreenUpdates()) {
+                            skip = true;
+                            break;
+                        }
+                    }
+                    if (!skip) {
+                        screens[i].RenderFrame(updater.lastDeltaTime);
+                    }
+                }
             }
             bounds = Bounds2.WithSize( 0, 0f, bounds.Width + 80f, InputManager.screenSize.Y);
             using (tweakaroo_Scrollbar.RenderScrollbar(bounds.Min, bounds.Size.CeilingToInt(), 0, -bounds.Width)) {

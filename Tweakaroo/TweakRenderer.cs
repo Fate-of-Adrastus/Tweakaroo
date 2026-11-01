@@ -1,11 +1,22 @@
-﻿using System;
+﻿using Quintessential;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Tweakaroo;
 
 internal static class TweakRenderer {
     public static RenderTarget OverlayTarget;
-    public static Stack<IScreen> overlayScreens;
+    public static Stack<IScreen> overlayScreens = new();
     private static object updatedValue;
+    public static void PushOverlayScreen(IScreen screen) { 
+        overlayScreens.Push(screen);
+        screen.OnOpenOrClose(true);
+    }
+    public static void PopOverlayScreen() {
+        var screen = overlayScreens.Pop();
+        screen.OnOpenOrClose(false);
+    }
 
     public static Bounds2 RenderTweaks(Vector2 offset) {
         Vector2 position = new Vector2(10f, InputManager.screenSize.Y - 30f) + offset;
@@ -14,8 +25,6 @@ internal static class TweakRenderer {
         foreach (var tweak in TweakHandler.Tweaks) {
             Vector2 delta = Vector2.Zero;
             switch (tweak.TweakType) {
-
-
                 case TweakType.Short:
                 case TweakType.UShort:
                 case TweakType.Int:
@@ -31,7 +40,8 @@ internal static class TweakRenderer {
                 case TweakType.Boolean:
                     delta = RenderBoolean(position, tweak);
                     break;
-                case TweakType.EnumValue: // TODO droppdown list
+                case TweakType.EnumValue:
+                    delta = RenderEnum(position, tweak);
                     break;
                 case TweakType.String:
                     delta = RenderString(position, tweak);
@@ -69,7 +79,6 @@ internal static class TweakRenderer {
         }
         return new Vector2(width, pos.Y-origY);
     }
-
     public static Vector2 RenderString(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
         object currentValue = tweak.Getter.Invoke(null, []);
@@ -84,7 +93,6 @@ internal static class TweakRenderer {
 
         return new Vector2(width, pos.Y-origY);
     }
-
     public static Vector2 RenderBoolean(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
         float width = 0;
@@ -98,6 +106,30 @@ internal static class TweakRenderer {
             tweak.Setter.Invoke(null, [!currentValue]);
         }
         pos += new Vector2(0, bounds.Height);
+        width = float.Max(width, bounds.Width);
+
+        return new Vector2(width, pos.Y-origY);
+    }
+    public static Vector2 RenderEnum(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        float width = 0;
+
+        object currentValue = tweak.Getter.Invoke(null, []);
+        var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+        pos += new Vector2(0, -bounds.Height);
+        width = float.Max(width, bounds.Width);
+        Vector2 vector = Assets.textures.UI.dropdown.size.ToVector2();
+        bounds = Bounds2.WithSize(pos- new Vector2(0, vector.Y - 20f), vector);
+        if (DropDownListButton(TypeSafeString(currentValue, tweak.TweakType), bounds.BottomLeft, true)) {
+
+            var enumType = tweak.Field.FieldType;
+            FieldInfo[] fields = [.. enumType.GetFields().Where(field => !field.Name.Equals("value__"))];
+            string[] names = [.. fields.Select(field => field.Name)];
+            PushOverlayScreen(new DropDownScreen(pos - new Vector2(0, vector.Y / 2), names, (selected) => {
+                tweak.Setter.Invoke(null, [ fields[selected].GetRawConstantValue() ]);
+            }));
+        }
+        pos += new Vector2(0, -bounds.Height);
         width = float.Max(width, bounds.Width);
 
         return new Vector2(width, pos.Y-origY);
@@ -179,6 +211,21 @@ internal static class TweakRenderer {
         }
         return currentValue;
     }
+    private static bool DropDownListButton(string text, Vector2 pos, bool canHoverAndClick) {
+        Vector2 vector = Assets.textures.UI.dropdown.size.ToVector2();
+        Bounds2 bounds = Bounds2.WithSize(pos, vector);
+        TextureRenderer.RenderText(text, bounds.Center + new Vector2(0f, -5f), Assets.fonts.crimson_15, UIConsts.lightTextColor, TextAlignment.Center, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, false, true);
+        if (bounds.Contains(InputManager.MousePos()) && canHoverAndClick) {
+            TextureRenderer.Render(Assets.textures.UI.dropdown_hover, pos);
+            if (InputManager.IsClickPressed(MouseButtonType.LeftClick)) {
+                return true;
+            }
+        } else {
+            TextureRenderer.Render(Assets.textures.UI.dropdown, pos);
+        }
+        return false;
+    }
+
     private static string TypeSafeString(object obj, TweakType type) {
         return type switch {
             TweakType.Short => ((short)obj).ToString(),
