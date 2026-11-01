@@ -1,39 +1,141 @@
 ﻿using Quintessential;
 using System;
+using static MonoMod.InlineRT.MonoModRule;
+using static Quintessential.Internal.LegacyPuzzleModel;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Tweakaroo;
 
 internal static class TweakRenderer {
-
-    public static float RenderNumeric(Vector2 pos, Tweak tweak) {
-        float origY = pos.Y;
-
-        if (tweak.UpperBound != null && tweak.LowerBound != null) {
-
-            object currentValue = tweak.Getter.Invoke(null, []);
-            bool changed = false;
-
-            var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
-            pos += new Vector2(0, -bounds.Height);
-            bounds = TextureRenderer.RenderText(TypeSafeString(tweak.LowerBound, tweak), pos, Assets.fonts.cormorant_15, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
-            var backStepPosition = pos + new Vector2(bounds.Width, float.Round(-Assets.textures.UI.volume.GetHeight()/ 2.5f));
-            pos += new Vector2(bounds.Width, float.Round(-Assets.textures.UI.volume.GetHeight()));
-            float updated = SliderBar(ProgressInRange(currentValue, tweak), backStepPosition, ref changed, false, true);
-            backStepPosition += new Vector2(310f, float.Round(Assets.textures.UI.volume.GetHeight()/ 2.5f));
-            TextureRenderer.RenderText(TypeSafeString(tweak.UpperBound, tweak), backStepPosition, Assets.fonts.cormorant_15, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, false, true);
-
-            if (changed) {
-                ValueFromProgress(updated, tweak);
-                tweak.Setter.Invoke(null, [updatedValue]);
-            }
-        }
-        return pos.Y-origY;
-    }
+    public static Stack<IScreen> overlayScreens;
     private static object updatedValue;
 
+    public static void RenderTweaks() {
+        Vector2 position = new Vector2(20f, InputManager.screenSize.Y - 30f);
+        float width = 0f;
+
+        foreach (var tweak in TweakHandler.Tweaks) {
+            Vector2 delta = Vector2.Zero;
+            switch (tweak.TweakType) {
 
 
+                case TweakType.Short:
+                case TweakType.UShort:
+                case TweakType.Int:
+                case TweakType.UInt:
+                case TweakType.Long:
+                case TweakType.ULong:
+                case TweakType.SByte:
+                case TweakType.Byte:
+                case TweakType.Float:
+                case TweakType.Double:
+                    delta = RenderNumeric(position, tweak);
+                    break;
+                case TweakType.Boolean:
+                    delta = RenderBoolean(position, tweak);
+                    break;
+                case TweakType.EnumValue: // TODO droppdown list
+                    break;
+                case TweakType.String:
+                    delta = RenderString(position, tweak);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
 
+            position += new Vector2(0, delta.Y -10f);
+            width = float.Max(width, delta.X);
+        }
+    }
+    public static Vector2 RenderNumeric(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        object currentValue = tweak.Getter.Invoke(null, []);
+        float width = 0f;
+        if (tweak.UpperBound != null && tweak.LowerBound != null) {
+
+            var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, tweak.UpperBound, tweak.LowerBound, currentValue, newValue => tweak.Setter.Invoke(null, [newValue]), tweak.TweakType, ref tweak.CurrentlyEdited);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        } else {
+
+            var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = TextButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); } , tweak.TweakType, ref tweak.CurrentlyEdited);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        }
+        return new Vector2(width, pos.Y-origY);
+    }
+
+    public static Vector2 RenderString(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        object currentValue = tweak.Getter.Invoke(null, []);
+        float width = 0;
+
+        var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+        pos += new Vector2(0, -bounds.Height);
+        width = float.Max(width, bounds.Width);
+        bounds = TextButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType, ref tweak.CurrentlyEdited);
+        pos += new Vector2(0, bounds.Height);
+        width = float.Max(width, bounds.Width);
+
+        return new Vector2(width, pos.Y-origY);
+    }
+
+    public static Vector2 RenderBoolean(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        float width = 0;
+
+        bool currentValue = (bool)tweak.Getter.Invoke(null, []);
+        var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+        pos += new Vector2(0, -bounds.Height);
+        width = float.Max(width, bounds.Width);
+        bounds = Bounds2.WithSize(pos, new Vector2(36f, -37f));
+        if (currentValue != ToggleButtons(currentValue, pos + new Vector2(0, -10f), true, false)) {
+            tweak.Setter.Invoke(null, [!currentValue]);
+        }
+        pos += new Vector2(0, bounds.Height);
+        width = float.Max(width, bounds.Width);
+
+        return new Vector2(width, pos.Y-origY);
+    }
+
+
+    private static Bounds2 TextButton(Vector2 pos, object currentValue, Action<string> updateValue, TweakType type, ref bool edited) {
+        string current = TypeSafeString(currentValue, type);
+        Bounds2 textBounds = TextureRenderer.RenderText(Utils.FormatBold(StringExtension.TranslateToUpper(current), true), Vector2.Zero, Assets.fonts.crimson_13, Color.White, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, -1, Color.White, null, int.MaxValue, calculateBounds: true, doRender: false);
+        float width = 310f;
+        bool isTooLong = textBounds.Width > width;
+        Bounds2 bounds = Bounds2.WithSize(pos, new Vector2(width + 20, 46));
+
+        if (UIUtils.TextButton(isTooLong ? "..." : current, pos - new Vector2(0, bounds.Height / 2f), (int)float.Round(width), (int)float.Round(bounds.Height)).RenderAndCheckIfPressed(true, true)) {
+            GameLogic.instance.PushScreen(MessageBoxScreen.TextFieldBox(Bounds2.WithSize(Vector2.Zero, InputManager.screenSize), false, "", current, Translations.Translate("Set"), updateValue));
+            Assets.sounds.click_button.PlaySound(1f);
+            edited = true;
+        }
+        bounds = Bounds2.WithSize(pos.X, pos.Y, width, -bounds.Height);
+        return bounds;
+    }
+    private static Bounds2 SliderBar(Vector2 pos, object upperBound, object lowerBound, object currentValue, Action<object> updateValue, TweakType type, ref bool edited) {
+        var origPos = pos;
+        var bounds = TextureRenderer.RenderText(TypeSafeString(lowerBound, type), pos, Assets.fonts.cormorant_15, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+        var backStepPosition = pos + new Vector2(bounds.Width, float.Round(-Assets.textures.UI.volume.GetHeight()/ 2.5f));
+        pos += new Vector2(bounds.Width, float.Round(-Assets.textures.UI.volume.GetHeight()));
+        float updated = SliderBar(ProgressInRange(currentValue, upperBound, lowerBound, type), backStepPosition, ref edited, false, true);
+        backStepPosition += new Vector2(310f, float.Round(Assets.textures.UI.volume.GetHeight()/ 2.5f));
+        pos += new Vector2(310f, 0f);
+        bounds = TextureRenderer.RenderText(TypeSafeString(upperBound, type), backStepPosition, Assets.fonts.cormorant_15, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+
+        if (edited) {
+            ValueFromProgress(updated, upperBound, lowerBound, type);
+            updateValue(updatedValue);
+        }
+        return Bounds2.WithSize(origPos, pos - origPos + new Vector2(bounds.Width, 0));
+    }
     private static float SliderBar(float value, Vector2 pos, ref bool valueChanged, bool disableClick, bool canHoverAndClick) {
         pos = pos.Rounded();
         Vector2 vector = pos + new Vector2(11f, 12f);
@@ -62,8 +164,24 @@ internal static class TweakRenderer {
         }
         return num2;
     }
-    private static string TypeSafeString(object obj, Tweak tweak) {
-        return tweak.TweakType switch {
+    private static bool ToggleButtons(bool currentValue, Vector2 pos, bool canHoverAndClick, bool disableOn) {
+        pos = pos.Rounded();
+        Bounds2 bounds = Bounds2.WithSize(pos, new Vector2(36f, 37f));
+        if (!disableOn && (bounds.Contains(InputManager.MousePos())) && canHoverAndClick) {
+            TextureRenderer.Render(Assets.textures.UI.checkbox_hover, bounds.Min);
+            if (InputManager.IsClickPressed(MouseButtonType.LeftClick)) {
+                currentValue = !currentValue;
+            }
+        } else {
+            TextureRenderer.Render(Assets.textures.UI.checkbox, Color.White.WithAlpha(disableOn ? 0.3f : 1f), bounds.Min);
+        }
+        if (currentValue) {
+            TextureRenderer.Render(Assets.textures.UI.checkbox_fill, bounds.Min);
+        }
+        return currentValue;
+    }
+    private static string TypeSafeString(object obj, TweakType type) {
+        return type switch {
             TweakType.Short => ((short)obj).ToString(),
             TweakType.UShort => ((ushort)obj).ToString(),
             TweakType.Int => ((int)obj).ToString(),
@@ -80,61 +198,97 @@ internal static class TweakRenderer {
             _ => throw new NotImplementedException()
         };
     }
-    private static float ProgressInRange(object obj, Tweak tweak) {
-        return tweak.TweakType switch {
-            TweakType.Short => ((short)obj - (short)tweak.LowerBound) / (float)((short)tweak.UpperBound - (short)tweak.LowerBound),
-            TweakType.UShort => ((ushort)obj - (ushort)tweak.LowerBound) / (float)((ushort)tweak.UpperBound - (ushort)tweak.LowerBound),
-            TweakType.Int => ((int)obj - (int)tweak.LowerBound) / (float)((int)tweak.UpperBound - (int)tweak.LowerBound),
-            TweakType.UInt => ((uint)obj - (uint)tweak.LowerBound) / (float)((uint)tweak.UpperBound - (uint)tweak.LowerBound),
-            TweakType.Long => ((long)obj - (long)tweak.LowerBound) / (float)((long)tweak.UpperBound - (long)tweak.LowerBound),
-            TweakType.ULong => ((ulong)obj - (ulong)tweak.LowerBound) / (float)((ulong)tweak.UpperBound - (ulong)tweak.LowerBound),
-            TweakType.SByte => ((sbyte)obj - (sbyte)tweak.LowerBound) / (float)((sbyte)tweak.UpperBound - (sbyte)tweak.LowerBound),
-            TweakType.Byte => ((byte)obj - (byte)tweak.LowerBound) / (float)((byte)tweak.UpperBound - (byte)tweak.LowerBound),
-            TweakType.Float => ((float)obj - (float)tweak.LowerBound) / (float)((float)tweak.UpperBound - (float)tweak.LowerBound),
-            TweakType.Double => (float)(((double)obj - (double)tweak.LowerBound) / ((double)tweak.UpperBound - (double)tweak.LowerBound)),
+    private static float ProgressInRange(object obj, object upperBound, object lowerBound, TweakType type) {
+        return type switch {
+            TweakType.Short => ((short)obj - (short)lowerBound) / (float)((short)upperBound - (short)lowerBound),
+            TweakType.UShort => ((ushort)obj - (ushort)lowerBound) / (float)((ushort)upperBound - (ushort)lowerBound),
+            TweakType.Int => ((int)obj - (int)lowerBound) / (float)((int)upperBound - (int)lowerBound),
+            TweakType.UInt => ((uint)obj - (uint)lowerBound) / (float)((uint)upperBound - (uint)lowerBound),
+            TweakType.Long => ((long)obj - (long)lowerBound) / (float)((long)upperBound - (long)lowerBound),
+            TweakType.ULong => ((ulong)obj - (ulong)lowerBound) / (float)((ulong)upperBound - (ulong)lowerBound),
+            TweakType.SByte => ((sbyte)obj - (sbyte)lowerBound) / (float)((sbyte)upperBound - (sbyte)lowerBound),
+            TweakType.Byte => ((byte)obj - (byte)lowerBound) / (float)((byte)upperBound - (byte)lowerBound),
+            TweakType.Float => ((float)obj - (float)lowerBound) / (float)((float)upperBound - (float)lowerBound),
+            TweakType.Double => (float)(((double)obj - (double)lowerBound) / ((double)upperBound - (double)lowerBound)),
             TweakType.String => throw new InvalidOperationException(),
             TweakType.Boolean => throw new InvalidOperationException(),
             TweakType.EnumValue => throw new InvalidOperationException(),
             _ => throw new InvalidOperationException()
         };
     }
-    private static void ValueFromProgress(float progress, Tweak tweak) {
+    private static void ValueFromProgress(float progress, object upperBound, object lowerBound, TweakType type) {
+        updatedValue =type switch {
+            TweakType.Short => (short)(((short)upperBound - (short)lowerBound) * progress) + (short)lowerBound,
+            TweakType.UShort => (ushort)(((ushort)upperBound - (ushort)lowerBound) * progress) + (ushort)lowerBound,
+            TweakType.Int => (int)(((int)upperBound - (int)lowerBound) * progress) + (int)lowerBound,
+            TweakType.UInt => (uint)(((uint)upperBound - (uint)lowerBound) * progress) + (uint)lowerBound,
+            TweakType.Long => (long)(((long)upperBound - (long)lowerBound) * progress) + (long)lowerBound,
+            TweakType.ULong => (ulong)(((ulong)upperBound - (ulong)lowerBound) * progress) + (ulong)lowerBound,
+            TweakType.SByte => (sbyte)(((sbyte)upperBound - (sbyte)lowerBound) * progress) + (sbyte)lowerBound,
+            TweakType.Byte => (byte)(((byte)upperBound - (byte)lowerBound) * progress) + (byte)lowerBound,
+            TweakType.Float => (float)(((float)upperBound - (float)lowerBound) * progress) + (float)lowerBound,
+            TweakType.Double => (object)((double)(((double)upperBound - (double)lowerBound) * progress) + (double)lowerBound),
+            _ => throw new InvalidOperationException(),
+        };
+    }
+    private static bool TryParseFromString(string str, Tweak tweak) {
+        bool success;
         switch (tweak.TweakType) {
             case TweakType.Short:
-                updatedValue = (short)(((short)tweak.UpperBound - (short)tweak.LowerBound) * progress) + (short)tweak.LowerBound;
+                success = short.TryParse(str, out var shortValue);
+                updatedValue = shortValue;
                 break;
             case TweakType.UShort:
-                updatedValue = (ushort)(((ushort)tweak.UpperBound - (ushort)tweak.LowerBound) * progress) + (ushort)tweak.LowerBound;
+                success = ushort.TryParse(str, out var ushortValue);
+                updatedValue = ushortValue;
                 break;
             case TweakType.Int:
-                updatedValue = (int)(((int)tweak.UpperBound - (int)tweak.LowerBound) * progress) + (int)tweak.LowerBound;
+                success = int.TryParse(str, out var intValue);
+                updatedValue = intValue;
                 break;
             case TweakType.UInt:
-                updatedValue = (uint)(((uint)tweak.UpperBound - (uint)tweak.LowerBound) * progress) + (uint)tweak.LowerBound;
+                success = uint.TryParse(str, out var uintValue);
+                updatedValue = uintValue;
                 break;
             case TweakType.Long:
-                updatedValue = (long)(((long)tweak.UpperBound - (long)tweak.LowerBound) * progress) + (long)tweak.LowerBound;
+                success = long.TryParse(str, out var longValue);
+                updatedValue = longValue;
                 break;
             case TweakType.ULong:
-                updatedValue = (ulong)(((ulong)tweak.UpperBound - (ulong)tweak.LowerBound) * progress) + (ulong)tweak.LowerBound;
+                success = ulong.TryParse(str, out var ulongValue);
+                updatedValue = ulongValue;
                 break;
             case TweakType.SByte:
-                updatedValue = (sbyte)(((sbyte)tweak.UpperBound - (sbyte)tweak.LowerBound) * progress) + (sbyte)tweak.LowerBound;
+                success = sbyte.TryParse(str, out var sbyteValue);
+                updatedValue = sbyteValue;
                 break;
             case TweakType.Byte:
-                updatedValue = (byte)(((byte)tweak.UpperBound - (byte)tweak.LowerBound) * progress) + (byte)tweak.LowerBound;
+                success = byte.TryParse(str, out var byteValue);
+                updatedValue = byteValue;
                 break;
             case TweakType.Float:
-                updatedValue = (float)(((float)tweak.UpperBound - (float)tweak.LowerBound) * progress) + (float)tweak.LowerBound;
+                success = float.TryParse(str, out var floatValue);
+                updatedValue = floatValue;
                 break;
             case TweakType.Double:
-                updatedValue = (double)(((double)tweak.UpperBound - (double)tweak.LowerBound) * progress) + (double)tweak.LowerBound;
+                success = double.TryParse(str, out var doubleValue);
+                updatedValue = doubleValue;
                 break;
             case TweakType.Boolean:
+                success = bool.TryParse(str, out var boolValue);
+                updatedValue = boolValue;
+                break;
             case TweakType.EnumValue:
+                success = Enum.TryParse(tweak.Field.FieldType, str, out var enumValue);
+                updatedValue = enumValue;
+                break;
             case TweakType.String:
+                success = true;
+                updatedValue = str;
+                break;
             default:
                 throw new InvalidOperationException();
         }
+        return success;
     }
 }

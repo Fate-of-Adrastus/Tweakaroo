@@ -27,11 +27,21 @@ internal class patch_GameLogic {
 
     [Tweak("Test Int")]
     [TweakSlider(0, 20)]
-    public int TestVal;
+    public static int TestVal;
 
     [Tweak("Alpha")]
     [TweakSlider(0f, 1f)]
     public static float Alpha = 0.6f;
+
+    [Tweak("String-parsed Float")]
+    public static float StringParsedF = 3.1415f;
+
+    [Tweak("String-parsed Sbyte")]
+    public static sbyte StringParsedSb = -32;
+    [Tweak("Bool Test")]
+    public static bool A = true;
+    [Tweak("String from the test!")]
+    public static string s = "When life gives you a lemons, make lemonade.";
 
     public bool tweakaroo_ShouldRenderOverlay;
     public void tweakaroo_RenderTweakarooOverlay() {
@@ -40,40 +50,11 @@ internal class patch_GameLogic {
         if (!tweakaroo_ShouldRenderOverlay) return;
 
 
-        Vector2 screenSize = InputManager.screenSize;
-        float height = float.Min(screenSize.Y, 1040f / 4f);
+        float height = float.Min(InputManager.screenSize.Y, 1040f / 4f);
 
-        TextureRenderer.RenderRepeating(Quintessential.UI.BackgroundLarger, Color.White.WithAlpha(Alpha), new Vector2(0, screenSize.Y - height), new Vector2(screenSize.X, height));
+        TextureRenderer.RenderRepeating(Quintessential.UI.BackgroundLarger, Color.White.WithAlpha(Alpha), new Vector2(0, InputManager.screenSize.Y - height), new Vector2(InputManager.screenSize.X, height));
 
-        Vector2 position = new Vector2(20f, screenSize.Y - 30f);
-
-        foreach (var tweak in TweakHandler.Tweaks) {
-            float deltaY = 0f;
-            switch (tweak.TweakType) {
-
-
-                case TweakType.Short:
-                case TweakType.UShort:
-                case TweakType.Int:
-                case TweakType.UInt:
-                case TweakType.Long:
-                case TweakType.ULong:
-                case TweakType.SByte:
-                case TweakType.Byte:
-                case TweakType.Float:
-                case TweakType.Double:
-                    deltaY = TweakRenderer.RenderNumeric(position, tweak);
-                    break;
-                case TweakType.Boolean:
-                case TweakType.EnumValue:
-                case TweakType.String:
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-
-            position += new Vector2(0, deltaY -10f);
-        }
+        TweakRenderer.RenderTweaks();
 
     }
 }
