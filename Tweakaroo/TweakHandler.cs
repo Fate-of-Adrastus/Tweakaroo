@@ -21,7 +21,9 @@ internal static class TweakHandler {
         { typeof(double), TweakType.Double },
         { typeof(bool), TweakType.Boolean },
         { typeof(Enum), TweakType.EnumValue },
-        { typeof(string), TweakType.String }
+        { typeof(string), TweakType.String },
+        { typeof(Vector2), TweakType.Vector2 },
+        { typeof(Vector3), TweakType.Vector3 }
     };
     public static List<Tweak> Tweaks = [];
 
@@ -78,8 +80,29 @@ internal static class TweakHandler {
                 errors.Add( new InvalidTweakError(field, "Field has an untweakable type: " + field.FieldType));
             if (field.GetCustomAttributes<TweakSliderAttribute>().Any()) {
                 var sliderData = field.GetCustomAttributes<TweakSliderAttribute>().First();
-                if (!field.FieldType.IsAssignableFrom(sliderData.UpperBound.GetType()) ||
-                    !field.FieldType.IsAssignableFrom(sliderData.LowerBound.GetType())) {
+                if (field.FieldType == typeof(Vector2)) {
+                    if (!typeof(object[]).IsAssignableFrom(sliderData.UpperBound.GetType()) ||
+                        !typeof(object[]).IsAssignableFrom(sliderData.LowerBound.GetType()) ||
+                        ((object[])sliderData.UpperBound).Length != 2 ||
+                        ((object[])sliderData.LowerBound).Length != 2 ||
+                        !((object[])sliderData.UpperBound).All(obj => typeof(float).IsAssignableFrom(obj.GetType())) ||
+                        !((object[])sliderData.LowerBound).All(obj => typeof(float).IsAssignableFrom(obj.GetType()))
+                    ) {
+                        errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider bounds.\n  Did you forget to add the f/d after the numeric value to make it a float/double?\n  You must provide 4 values for a Vector2 slider."));
+                    }
+                } else if (field.FieldType == typeof(Vector3)) {
+                    if (!typeof(object[]).IsAssignableFrom(sliderData.UpperBound.GetType()) ||
+                        !typeof(object[]).IsAssignableFrom(sliderData.LowerBound.GetType()) ||
+                        ((object[])sliderData.UpperBound).Length != 3 ||
+                        ((object[])sliderData.LowerBound).Length != 3 ||
+                        !((object[])sliderData.UpperBound).All(obj => typeof(float).IsAssignableFrom(obj.GetType())) ||
+                        !((object[])sliderData.LowerBound).All(obj => typeof(float).IsAssignableFrom(obj.GetType()))
+                    ) {
+                        errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider bounds.\n  Did you forget to add the f/d after the numeric value to make it a float/double?\n  You must provide 6 values for a Vector2 slider."));
+                    }
+                } else if (!field.FieldType.IsAssignableFrom(sliderData.UpperBound.GetType()) ||
+                    !field.FieldType.IsAssignableFrom(sliderData.LowerBound.GetType())
+                ) {
                     errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider bounds.\n  Did you forget to add the f/d after the numeric value to make it a float/double?"));
                 }
             }

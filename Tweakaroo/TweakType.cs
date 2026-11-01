@@ -16,4 +16,6 @@ internal enum TweakType {
     Boolean,
     EnumValue,
     String,
+    Vector2,
+    Vector3
 }

@@ -46,6 +46,12 @@ internal static class TweakRenderer {
                 case TweakType.String:
                     delta = RenderString(position, tweak);
                     break;
+                case TweakType.Vector2:
+                    delta = RenderVector2(position, tweak);
+                    break;
+                case TweakType.Vector3:
+                    delta = RenderVector3(position, tweak);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -65,7 +71,7 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, tweak.UpperBound, tweak.LowerBound, currentValue, newValue => tweak.Setter.Invoke(null, [newValue]), tweak.TweakType, ref tweak.CurrentlyEdited);
+            bounds = SliderBar(pos, tweak.UpperBound, tweak.LowerBound, currentValue, newValue => tweak.Setter.Invoke(null, [newValue]), tweak.TweakType, ref tweak.CurrentlyEdited[0]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         } else {
@@ -73,7 +79,7 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = TextInputButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); } , tweak.TweakType, ref tweak.CurrentlyEdited);
+            bounds = TextInputButton(pos, currentValue, newValue => TryParseFromString(newValue, tweak), newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); } , tweak.TweakType);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         }
@@ -87,7 +93,7 @@ internal static class TweakRenderer {
         var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
         pos += new Vector2(0, -bounds.Height);
         width = float.Max(width, bounds.Width);
-        bounds = TextInputButton(pos, currentValue, newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType, ref tweak.CurrentlyEdited);
+        bounds = TextInputButton(pos, currentValue, newValue => TryParseFromString(newValue, tweak), newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType);
         pos += new Vector2(0, bounds.Height);
         width = float.Max(width, bounds.Width);
 
@@ -134,9 +140,68 @@ internal static class TweakRenderer {
 
         return new Vector2(width, pos.Y-origY);
     }
+    public static Vector2 RenderVector2(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        Vector2 currentValue = (Vector2)tweak.Getter.Invoke(null, []);
+        float width = 0f;
+        if (tweak.UpperBound != null && tweak.LowerBound != null) {
+            object[] upperBound = (object[])tweak.UpperBound;
+            object[] lowerBound = (object[])tweak.LowerBound;
+
+            var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, newValue => tweak.Setter.Invoke(null, [new Vector2((float)newValue, currentValue.Y)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, newValue => tweak.Setter.Invoke(null, [new Vector2(currentValue.X, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        } else {
+
+            var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = TextInputButton(pos, currentValue, newValue => TryParseFromString(newValue, tweak), newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        }
+        return new Vector2(width, pos.Y - origY);
+    }
+    public static Vector2 RenderVector3(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        Vector3 currentValue = (Vector3)tweak.Getter.Invoke(null, []);
+        float width = 0f;
+        if (tweak.UpperBound != null && tweak.LowerBound != null) {
+            object[] upperBound = (object[])tweak.UpperBound;
+            object[] lowerBound = (object[])tweak.LowerBound;
+
+            var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, newValue => tweak.Setter.Invoke(null, [new Vector3((float)newValue, currentValue.Y, currentValue.Z)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, newValue => tweak.Setter.Invoke(null, [new Vector3(currentValue.X, (float)newValue, currentValue.Z)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[2], lowerBound[2], currentValue.Z, newValue => tweak.Setter.Invoke(null, [new Vector3(currentValue.X, currentValue.Y, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[2]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        } else {
+
+            var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = TextInputButton(pos, currentValue, newValue => TryParseFromString(newValue, tweak), newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        }
+        return new Vector2(width, pos.Y - origY);
+    }
 
 
-    private static Bounds2 TextInputButton(Vector2 pos, object currentValue, Action<string> updateValue, TweakType type, ref bool edited) {
+    private static Bounds2 TextInputButton(Vector2 pos, object currentValue, Predicate<string> checkValid, Action<string> updateValue, TweakType type) {
         string current = TypeSafeString(currentValue, type);
         Bounds2 textBounds = TextureRenderer.RenderText(Utils.FormatBold(StringExtension.TranslateToUpper(current), true), Vector2.Zero, Assets.fonts.crimson_13, Color.White, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, -1, Color.White, null, int.MaxValue, calculateBounds: true, doRender: false);
         float width = 310f;
@@ -144,9 +209,8 @@ internal static class TweakRenderer {
         Bounds2 bounds = Bounds2.WithSize(pos, new Vector2(width + 20, 46));
 
         if (UIUtils.TextButton(isTooLong ? "..." : current, pos - new Vector2(0, bounds.Height / 2f), (int)float.Round(width), (int)float.Round(bounds.Height)).RenderAndCheckIfPressed(true, true)) {
-            PushOverlayScreen(new StringInputScreen(Bounds2.WithSize(Vector2.Zero, InputManager.screenSize), current, updateValue));
+            PushOverlayScreen(new StringInputScreen(Bounds2.WithSize(Vector2.Zero, InputManager.screenSize), current, updateValue, checkValid));
             Assets.sounds.click_button.PlaySound(1f);
-            edited = true;
         }
         bounds = Bounds2.WithSize(pos.X, pos.Y, width, -bounds.Height);
         return bounds;
@@ -241,6 +305,8 @@ internal static class TweakRenderer {
             TweakType.String => ((string)obj).ToString(),
             TweakType.Boolean => ((bool)obj) ? "True" : "False",
             TweakType.EnumValue => ((Enum)obj).ToString(),
+            TweakType.Vector2 => ((Vector2)obj).ToString().Trim('(', ')'),
+            TweakType.Vector3 => ((Vector3)obj).ToString().Trim('(', ')'),
             _ => throw new NotImplementedException()
         };
     }
@@ -256,9 +322,6 @@ internal static class TweakRenderer {
             TweakType.Byte => ((byte)obj - (byte)lowerBound) / (float)((byte)upperBound - (byte)lowerBound),
             TweakType.Float => ((float)obj - (float)lowerBound) / (float)((float)upperBound - (float)lowerBound),
             TweakType.Double => (float)(((double)obj - (double)lowerBound) / ((double)upperBound - (double)lowerBound)),
-            TweakType.String => throw new InvalidOperationException(),
-            TweakType.Boolean => throw new InvalidOperationException(),
-            TweakType.EnumValue => throw new InvalidOperationException(),
             _ => throw new InvalidOperationException()
         };
     }
@@ -331,6 +394,22 @@ internal static class TweakRenderer {
             case TweakType.String:
                 success = true;
                 updatedValue = str;
+                break;
+            case TweakType.Vector2:
+                success = false;
+                var parts = str.Split(", ");
+                if (parts.Length == 2 && float.TryParse(parts[0], out var x) && float.TryParse(parts[1], out var y)) {
+                    success = true;
+                    updatedValue = new Vector2(x, y);
+                }
+                break;
+            case TweakType.Vector3:
+                success = false;
+                parts = str.Split(", ");
+                if (parts.Length == 3 && float.TryParse(parts[0], out x) && float.TryParse(parts[1], out y) && float.TryParse(parts[2], out var z)) {
+                    success = true;
+                    updatedValue = new Vector3(x, y, z);
+                }
                 break;
             default:
                 throw new InvalidOperationException();

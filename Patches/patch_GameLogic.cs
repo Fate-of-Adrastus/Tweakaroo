@@ -49,6 +49,13 @@ public class patch_GameLogic {
     [Tweak]
     [TweakPriority(1)]
     public static BoundsPosition Alignment;
+    [Tweak]
+    [TweakSlider(0f, 0f, 100f, 100f)]
+    public static Vector2 offset;
+    [Tweak]
+    [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f)]
+    public static Vector3 Vec3D;
+
 
     internal bool tweakaroo_ShouldRenderOverlay;
     private static readonly Scrollbar tweakaroo_Scrollbar = new();
@@ -62,7 +69,7 @@ public class patch_GameLogic {
         using (RenderTargetStackManager.Push(gameRenderTarget)) {
 
             Bounds2 bounds = Bounds2.Empty;
-            Vector2 offset = new Vector2(30f, 0);
+            Vector2 offset = new Vector2(30f, 0) + patch_GameLogic.offset;
             using (RenderTargetStackManager.Push(TweakRenderer.OverlayTarget)) {
                 RenderTargetStackManager.Clear(Color.Transparent);
                 bool disableInputForMainOverlay = TweakRenderer.overlayScreens.Size() > 0;

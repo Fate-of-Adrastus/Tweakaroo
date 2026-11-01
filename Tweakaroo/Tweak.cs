@@ -17,7 +17,7 @@ internal class Tweak {
     public object LowerBound;
 
     public int DrawPriority;
-    public bool CurrentlyEdited = false;
+    public bool[] CurrentlyEdited;
     public Tweak(FieldInfo field, TweakType type, string name, DynamicMethod getter, DynamicMethod setter, int drawPriority) {
         Field = field;
         TweakType = type;
@@ -25,5 +25,10 @@ internal class Tweak {
         Getter = getter;
         Setter = setter;
         DrawPriority = drawPriority;
+        CurrentlyEdited = type switch {
+            TweakType.Vector2 => [false, false],
+            TweakType.Vector3 => [false, false, false],
+            _ => [false]
+        };
     }
 }

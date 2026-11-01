@@ -8,13 +8,15 @@ internal class StringInputScreen : IScreen {
     readonly Bounds2 bounds;
     string value;
     Action<string> onConfirm;
+    Predicate<string> checkValid;
 
     float cursorBlinkTimer;
     static float cursorBlinkPeriod = 1.2f;
-    public StringInputScreen(Bounds2 bounds, string value, Action<string> onConfirm) {
+    public StringInputScreen(Bounds2 bounds, string value, Action<string> onConfirm, Predicate<string> checkValid) {
         this.bounds = bounds;
         this.value = value;
         this.onConfirm = onConfirm;
+        this.checkValid = checkValid;
     }
 
     public void OnOpenOrClose(bool isOpening) { }
@@ -46,7 +48,7 @@ internal class StringInputScreen : IScreen {
             cursorBlinkTimer = 0f;
         }
 
-        bool isValid = value.Length > 0;
+        bool isValid = checkValid(value);
         bool flag2 = isValid && InputManager.IsEnterPressed();
         if (UIUtils.TextButton("Set", vector + new Vector2(15f, -50f)).RenderAndCheckIfPressed(isValid, true) || flag2) {
             onConfirm(value);
