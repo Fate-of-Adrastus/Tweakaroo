@@ -1,17 +1,14 @@
-﻿using Quintessential;
-using System;
-using static MonoMod.InlineRT.MonoModRule;
-using static Quintessential.Internal.LegacyPuzzleModel;
-using static System.Net.Mime.MediaTypeNames;
+﻿using System;
 
 namespace Tweakaroo;
 
 internal static class TweakRenderer {
+    public static RenderTarget OverlayTarget;
     public static Stack<IScreen> overlayScreens;
     private static object updatedValue;
 
-    public static void RenderTweaks() {
-        Vector2 position = new Vector2(20f, InputManager.screenSize.Y - 30f);
+    public static Bounds2 RenderTweaks(Vector2 offset) {
+        Vector2 position = new Vector2(10f, InputManager.screenSize.Y - 30f) + offset;
         float width = 0f;
 
         foreach (var tweak in TweakHandler.Tweaks) {
@@ -46,6 +43,8 @@ internal static class TweakRenderer {
             position += new Vector2(0, delta.Y -10f);
             width = float.Max(width, delta.X);
         }
+
+        return Bounds2.WithCorners(position, new Vector2(width + 10f, InputManager.screenSize.Y));
     }
     public static Vector2 RenderNumeric(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;

@@ -2,13 +2,11 @@
 using Mono.Cecil.Cil;
 using MonoMod;
 using MonoMod.Cil;
-using System;
+using Quintessential;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.JavaScript;
 using Tweakaroo;
 
-internal class patch_GameLogic {
+public class patch_GameLogic {
 
     [MonoModILInject("GameLoop")]
     static void PatchRenderOverlay(MethodDefinition method, CustomAttribute attribute) {
@@ -25,13 +23,16 @@ internal class patch_GameLogic {
         cursor.EmitCall(method.DeclaringType.Methods.First(m => m.Name.Equals("tweakaroo_RenderTweakarooOverlay")));
     }
 
+    [MonoModIgnore]
+    private RenderTarget gameRenderTarget;
+
     [Tweak("Test Int")]
     [TweakSlider(0, 20)]
     public static int TestVal;
 
     [Tweak("Alpha")]
     [TweakSlider(0f, 1f)]
-    public static float Alpha = 0.6f;
+    public static float Alpha = 0.72f;
 
     [Tweak("String-parsed Float")]
     public static float StringParsedF = 3.1415f;
@@ -43,18 +44,30 @@ internal class patch_GameLogic {
     [Tweak("String from the test!")]
     public static string s = "When life gives you a lemons, make lemonade.";
 
-    public bool tweakaroo_ShouldRenderOverlay;
+    internal bool tweakaroo_ShouldRenderOverlay;
+    private static readonly Scrollbar tweakaroo_Scrollbar = new();
+    internal float tweakaroo_MenuWidth;
     public void tweakaroo_RenderTweakarooOverlay() {
         if (InputManager.IsKeyPressed(SDL2.SDL.SDLKey.SDLK_F7))
             tweakaroo_ShouldRenderOverlay = !tweakaroo_ShouldRenderOverlay;
         if (!tweakaroo_ShouldRenderOverlay) return;
 
+        TweakRenderer.OverlayTarget ??= Renderer.CreateRenderTarget(InputManager.screenSize.CeilingToInt().X, InputManager.screenSize.CeilingToInt().Y);
+        using (RenderTargetStackManager.Push(gameRenderTarget)) {
 
-        float height = float.Min(InputManager.screenSize.Y, 1040f / 4f);
-
-        TextureRenderer.RenderRepeating(Quintessential.UI.BackgroundLarger, Color.White.WithAlpha(Alpha), new Vector2(0, InputManager.screenSize.Y - height), new Vector2(InputManager.screenSize.X, height));
-
-        TweakRenderer.RenderTweaks();
-
+            Bounds2 bounds = Bounds2.Empty;
+            Vector2 offset = new Vector2(30f, 0);
+            using (RenderTargetStackManager.Push(TweakRenderer.OverlayTarget)) {
+                RenderTargetStackManager.Clear(Color.Transparent);
+                bounds = TweakRenderer.RenderTweaks(offset);
+            }
+            bounds = Bounds2.WithSize( 0, 0f, bounds.Width + 80f, InputManager.screenSize.Y);
+            using (tweakaroo_Scrollbar.RenderScrollbar(bounds.Min, bounds.Size.CeilingToInt(), 0, -bounds.Width)) {
+                RenderTargetStackManager.Clear(Color.Transparent);
+                TextureRenderer.RenderRepeating(UI.BackgroundLarger, Color.White.WithAlpha(Alpha), bounds.Min + offset, bounds.Size);
+                TextureRenderer.Render(TweakRenderer.OverlayTarget.renderedTexture, Color.White, Vector2.Zero);
+            }
+            tweakaroo_MenuWidth = bounds.Min.X + bounds.Width;
+        }
     }
 }
