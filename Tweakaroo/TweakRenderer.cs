@@ -18,8 +18,8 @@ internal static class TweakRenderer {
         screen.OnOpenOrClose(false);
     }
 
-    public static Bounds2 RenderTweaks(Vector2 offset) {
-        Vector2 position = new Vector2(10f, InputManager.screenSize.Y - 30f) + offset;
+    public static Bounds2 RenderTweaks(float offset) {
+        Vector2 position = new(40f, offset - 30f);
         float width = 0f;
 
         foreach (var tweak in TweakHandler.Tweaks) {
@@ -66,7 +66,7 @@ internal static class TweakRenderer {
             width = float.Max(width, delta.X);
         }
 
-        return Bounds2.WithCorners(position, new Vector2(width + 10f, InputManager.screenSize.Y));
+        return Bounds2.WithCorners(position, position + new Vector2(width + 10f, offset - position.Y));
     }
     public static Vector2 RenderNumeric(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;

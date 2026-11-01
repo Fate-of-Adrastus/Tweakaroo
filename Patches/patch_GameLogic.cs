@@ -50,7 +50,7 @@ public class patch_GameLogic {
     [TweakPriority(1)]
     public static BoundsPosition Alignment;
     [Tweak]
-    [TweakSlider(0f, 0f, 100f, 100f)]
+    [TweakSlider(0f, -100f, 0f, 100f)]
     public static Vector2 offset;
     [Tweak]
     [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f)]
@@ -77,23 +77,24 @@ public class patch_GameLogic {
         using (RenderTargetStackManager.Push(gameRenderTarget)) {
 
             Bounds2 bounds = Bounds2.Empty;
-            Vector2 offset = new Vector2(30f, 0) + patch_GameLogic.offset;
             using (RenderTargetStackManager.Push(TweakRenderer.OverlayTarget)) {
                 RenderTargetStackManager.Clear(Color.Transparent);
                 bool disableInputForMainOverlay = TweakRenderer.overlayScreens.Size() > 0;
 
                 if (disableInputForMainOverlay)
                     InputManager.DisableInput();
-                bounds = TweakRenderer.RenderTweaks(offset);
+                bounds = TweakRenderer.RenderTweaks(tweakaroo_Scrollbar.GetOffset().Y + offset.Y);
                 if (disableInputForMainOverlay)
                     InputManager.EnableInput();
             }
-            bounds = Bounds2.WithSize( 0, 0f, bounds.Width + 80f, InputManager.screenSize.Y);
+            tweakaroo_Scrollbar.SetHeightAndClamp(bounds.Height);
+
+            bounds = Bounds2.WithSize( 0f, 0f, bounds.Width + 80f, InputManager.screenSize.Y);
             tweakaroo_MenuWidth = bounds.Min.X + bounds.Width;
 
+            TextureRenderer.RenderRepeating(UI.BackgroundLarger, Color.White.WithAlpha(Alpha), bounds.Min, bounds.Size);
             using (tweakaroo_Scrollbar.RenderScrollbar(bounds.Min, bounds.Size.CeilingToInt(), 0, -bounds.Width)) {
                 RenderTargetStackManager.Clear(Color.Transparent);
-                TextureRenderer.RenderRepeating(UI.BackgroundLarger, Color.White.WithAlpha(Alpha), bounds.Min + offset, bounds.Size);
                 TextureRenderer.Render(TweakRenderer.OverlayTarget.renderedTexture, Color.White, Vector2.Zero);
             }
 
