@@ -42,13 +42,13 @@ public class patch_GameLogic {
     [Tweak("Bool Test")]
     public static bool A = true;
     [Tweak("String from the test!")]
-    public static string s = "When life gives you a lemons, make lemonade.";
+    public static string s = "When life gives you lemons, ...";
 
     internal bool tweakaroo_ShouldRenderOverlay;
     private static readonly Scrollbar tweakaroo_Scrollbar = new();
     internal float tweakaroo_MenuWidth;
     public void tweakaroo_RenderTweakarooOverlay() {
-        if (InputManager.IsKeyPressed(SDL2.SDL.SDLKey.SDLK_F7))
+        if (TweakarooSettings.Instance.ToggleOverlay.Pressed())
             tweakaroo_ShouldRenderOverlay = !tweakaroo_ShouldRenderOverlay;
         if (!tweakaroo_ShouldRenderOverlay) return;
 

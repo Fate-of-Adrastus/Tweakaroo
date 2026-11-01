@@ -2,5 +2,8 @@
   "tweakaroo": {
     "": "Tweakaroo",
     "description": "Tweak & tune static constants in game for ease of development.",
+    "settings": {
+      "overlay": "Toggle Tweaks Overlay"
+    }
   }
 }
