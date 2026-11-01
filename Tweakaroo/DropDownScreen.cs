@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using static MonoMod.InlineRT.MonoModRule;
 
 namespace Tweakaroo;
 

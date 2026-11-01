@@ -2,12 +2,12 @@ Tasks:
 * strings --onlyOnChange
 * intermediary --onlyOnChange
 * newMod -name "Tweakaroo"
-* copy -toMod "Tweakaroo" -from "C:\Program Files (x86)\Steam\steamapps\common\Tweakaroo\modMeta.jsonc"
-* copy -toMod "Tweakaroo" -from "C:\Program Files (x86)\Steam\steamapps\common\Tweakaroo\bin\Debug\net10.0\Tweakaroo.dll"
-* copy -toMod "Tweakaroo" -from "C:\Program Files (x86)\Steam\steamapps\common\Tweakaroo\Content"
+* copy -toMod "Tweakaroo" -from "D:\C#_projects\Tweakaroo\modMeta.jsonc"
+* copy -toMod "Tweakaroo" -from "D:\C#_projects\Tweakaroo\bin\Debug\net10.0\Tweakaroo.dll"
+* copy -toMod "Tweakaroo" -from "D:\C#_projects\Tweakaroo\Content"
 * devMerge --onlyOnChange --mergeXML -id "tweakaroo" 
 * merge --onlyOnChange --asNamed
-* export -name "Tweakaroo" -outputPath "C:\Program Files (x86)\Steam\steamapps\common\Tweakaroo\TestEnvironment\_builds"
+* export -name "Tweakaroo" -outputPath "D:\C#_projects\Tweakaroo\TestEnvironment\_builds"
 * run --readLogs -args "-devEnv -pseudoLang"
 
 AutoExit:
@@ -16,7 +16,7 @@ AutoExit:
 # Included just to copy the tasks.txt into a versionned folder.
 # Comment out if you don't want to keep a spare copy of this in your repository.
 # CopyTasksPath:
-# C:\Program Files (x86)\Steam\steamapps\common\Tweakaroo
+# D:\C#_projects\Tweakaroo
 
 # Mods to also include in the devMerge task other than your direct dependencies. ( Replace # with * for list. )
 # Shoul be used with care, allways test without these optional dependencies enabled!

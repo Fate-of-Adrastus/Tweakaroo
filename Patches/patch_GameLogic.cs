@@ -48,7 +48,7 @@ public class patch_GameLogic {
     public static string s = "When life gives you lemons, ...";
     [Tweak]
     [TweakPriority(1)]
-    public static BoundsPosition alingment;
+    public static BoundsPosition Alignment;
 
     internal bool tweakaroo_ShouldRenderOverlay;
     private static readonly Scrollbar tweakaroo_Scrollbar = new();
@@ -72,28 +72,29 @@ public class patch_GameLogic {
                 bounds = TweakRenderer.RenderTweaks(offset);
                 if (disableInputForMainOverlay)
                     InputManager.EnableInput();
-
-                List<IScreen> screens = TweakRenderer.overlayScreens.stack;
-                for (int i = 0; i < screens.Count; i++) {
-                    bool skip = false;
-                    for (int j = i + 1; j < screens.Count; j++) {
-                        if (screens[j].PreventLowerScreenUpdates()) {
-                            skip = true;
-                            break;
-                        }
-                    }
-                    if (!skip) {
-                        screens[i].RenderFrame(updater.lastDeltaTime);
-                    }
-                }
             }
             bounds = Bounds2.WithSize( 0, 0f, bounds.Width + 80f, InputManager.screenSize.Y);
+            tweakaroo_MenuWidth = bounds.Min.X + bounds.Width;
+
             using (tweakaroo_Scrollbar.RenderScrollbar(bounds.Min, bounds.Size.CeilingToInt(), 0, -bounds.Width)) {
                 RenderTargetStackManager.Clear(Color.Transparent);
                 TextureRenderer.RenderRepeating(UI.BackgroundLarger, Color.White.WithAlpha(Alpha), bounds.Min + offset, bounds.Size);
                 TextureRenderer.Render(TweakRenderer.OverlayTarget.renderedTexture, Color.White, Vector2.Zero);
             }
-            tweakaroo_MenuWidth = bounds.Min.X + bounds.Width;
+
+            List<IScreen> screens = TweakRenderer.overlayScreens.stack;
+            for (int i = 0; i < screens.Count; i++) {
+                bool skip = false;
+                for (int j = i + 1; j < screens.Count; j++) {
+                    if (screens[j].PreventLowerScreenUpdates()) {
+                        skip = true;
+                        break;
+                    }
+                }
+                if (!skip) {
+                    screens[i].RenderFrame(updater.lastDeltaTime);
+                }
+            }
         }
     }
 }

@@ -5,8 +5,8 @@
     },
     "Run With Opus Mutatum": {
       "commandName": "Executable",
-      "executablePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Tweakaroo\\TestEnvironment\\OpusMutatum.exe",
-      "workingDirectory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Tweakaroo\\TestEnvironment"
+      "executablePath": "D:\\C#_projects\\Tweakaroo\\TestEnvironment\\OpusMutatum.exe",
+      "workingDirectory": "D:\\C#_projects\\Tweakaroo\\TestEnvironment"
     }
   }
 }
