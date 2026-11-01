@@ -1,7 +1,7 @@
 ﻿
 namespace Tweakaroo;
 
-// TODO Vector2, Vector3, HexIndex, Hexrotation
+// TODO, Hexrotation, Bounds2, Color
 internal enum TweakType {
     Short,
     UShort,
@@ -17,5 +17,7 @@ internal enum TweakType {
     EnumValue,
     String,
     Vector2,
-    Vector3
+    Vector3,
+    Index2,
+    HexIndex,
 }

@@ -28,6 +28,8 @@ internal class Tweak {
         CurrentlyEdited = type switch {
             TweakType.Vector2 => [false, false],
             TweakType.Vector3 => [false, false, false],
+            TweakType.Index2 => [false, false],
+            TweakType.HexIndex => [false, false],
             _ => [false]
         };
     }

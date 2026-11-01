@@ -52,6 +52,12 @@ internal static class TweakRenderer {
                 case TweakType.Vector3:
                     delta = RenderVector3(position, tweak);
                     break;
+                case TweakType.Index2:
+                    delta = RenderIndex2(position, tweak);
+                    break;
+                case TweakType.HexIndex:
+                    delta = RenderHexIndex(position, tweak);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -199,6 +205,62 @@ internal static class TweakRenderer {
         }
         return new Vector2(width, pos.Y - origY);
     }
+    public static Vector2 RenderIndex2(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        Index2 currentValue = (Index2)tweak.Getter.Invoke(null, []);
+        float width = 0f;
+        if (tweak.UpperBound != null && tweak.LowerBound != null) {
+            object[] upperBound = (object[])tweak.UpperBound;
+            object[] lowerBound = (object[])tweak.LowerBound;
+
+            var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, newValue => tweak.Setter.Invoke(null, [new Index2((int)newValue, currentValue.Y)]), TweakType.Int, ref tweak.CurrentlyEdited[0]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, newValue => tweak.Setter.Invoke(null, [new Index2(currentValue.X, (int)newValue)]), TweakType.Int, ref tweak.CurrentlyEdited[1]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        } else {
+
+            var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = TextInputButton(pos, currentValue, newValue => TryParseFromString(newValue, tweak), newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        }
+        return new Vector2(width, pos.Y - origY);
+    }
+    public static Vector2 RenderHexIndex(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        HexIndex currentValue = (HexIndex)tweak.Getter.Invoke(null, []);
+        float width = 0f;
+        if (tweak.UpperBound != null && tweak.LowerBound != null) {
+            object[] upperBound = (object[])tweak.UpperBound;
+            object[] lowerBound = (object[])tweak.LowerBound;
+
+            var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.Q, newValue => tweak.Setter.Invoke(null, [new HexIndex((int)newValue, currentValue.R)]), TweakType.Int, ref tweak.CurrentlyEdited[0]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.R, newValue => tweak.Setter.Invoke(null, [new HexIndex(currentValue.Q, (int)newValue)]), TweakType.Int, ref tweak.CurrentlyEdited[1]);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        } else {
+
+            var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+            pos += new Vector2(0, -bounds.Height);
+            width = float.Max(width, bounds.Width);
+            bounds = TextInputButton(pos, currentValue, newValue => TryParseFromString(newValue, tweak), newValue => { if (TryParseFromString(newValue, tweak)) tweak.Setter.Invoke(null, [updatedValue]); }, tweak.TweakType);
+            pos += new Vector2(0, bounds.Height);
+            width = float.Max(width, bounds.Width);
+        }
+        return new Vector2(width, pos.Y - origY);
+    }
 
 
     private static Bounds2 TextInputButton(Vector2 pos, object currentValue, Predicate<string> checkValid, Action<string> updateValue, TweakType type) {
@@ -307,6 +369,8 @@ internal static class TweakRenderer {
             TweakType.EnumValue => ((Enum)obj).ToString(),
             TweakType.Vector2 => ((Vector2)obj).ToString().Trim('(', ')'),
             TweakType.Vector3 => ((Vector3)obj).ToString().Trim('(', ')'),
+            TweakType.Index2 => ((Index2)obj).ToString().Trim('(', ')'),
+            TweakType.HexIndex => ((HexIndex)obj).Q.ToString() + ", " + ((HexIndex)obj).R.ToString(),
             _ => throw new NotImplementedException()
         };
     }
@@ -409,6 +473,18 @@ internal static class TweakRenderer {
                 if (parts.Length == 3 && float.TryParse(parts[0], out x) && float.TryParse(parts[1], out y) && float.TryParse(parts[2], out var z)) {
                     success = true;
                     updatedValue = new Vector3(x, y, z);
+                }
+                break;
+            case TweakType.Index2:
+            case TweakType.HexIndex:
+                success = false;
+                parts = str.Split(", ");
+                if (parts.Length == 2 && int.TryParse(parts[0], out var iX) && int.TryParse(parts[1], out var iY)) {
+                    success = true;
+                    if (tweak.TweakType == TweakType.Index2)
+                        updatedValue = new Index2(iX, iY);
+                    else
+                        updatedValue = new HexIndex(iX, iY);
                 }
                 break;
             default:

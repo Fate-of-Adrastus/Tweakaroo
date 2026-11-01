@@ -55,6 +55,14 @@ public class patch_GameLogic {
     [Tweak]
     [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f)]
     public static Vector3 Vec3D;
+    [Tweak]
+    [TweakSlider(0, 0, 5, 5)]
+    public static HexIndex Hex = new(4, 5);
+    [Tweak]
+    [TweakSlider(0, 20, 5, 40)]
+    public static Index2 Index2;
+    [Tweak]
+    public static HexIndex HexParsed = new(-2, -2);
 
 
     internal bool tweakaroo_ShouldRenderOverlay;
