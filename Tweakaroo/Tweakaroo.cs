@@ -1,4 +1,5 @@
 ﻿using Quintessential;
+using Quintessential.Settings;
 using System;
 
 namespace Tweakaroo;
@@ -18,4 +19,11 @@ internal class Tweakaroo : QuintessentialMod, IDataMod {
 
     public override void PostLoad() { }
 	public override void Unload() { }
+}
+public class TweakarooSettings {
+
+    public static TweakarooSettings Instance => Tweakaroo.Instance.Settings as TweakarooSettings;
+
+    [SettingsLabelKey("tweakaroo.settings.overlay")]
+    public Keybinding ToggleOverlay = new("F7");
 }

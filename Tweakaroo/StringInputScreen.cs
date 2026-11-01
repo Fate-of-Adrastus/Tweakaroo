@@ -8,8 +8,8 @@ internal class StringInputScreen : IScreen {
     readonly Bounds2 bounds;
     string beforeCursor;
     string afterCursor = "";
-    Action<string> onConfirm;
-    Predicate<string> checkValid;
+    readonly Action<string> onConfirm;
+    readonly Predicate<string> checkValid;
 
     float cursorBlinkTimer;
     static float cursorBlinkPeriod = 1.2f;

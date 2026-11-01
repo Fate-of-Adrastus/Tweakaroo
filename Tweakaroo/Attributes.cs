@@ -3,6 +3,16 @@
 namespace Tweakaroo;
 
 [AttributeUsage(AttributeTargets.Field)]
+public class TweakAttribute(string aliase = "") : Attribute {
+    internal string Aliase = aliase;
+}
+
+[AttributeUsage(AttributeTargets.Field)]
+public class TweakPriorityAttribute(int priority) : Attribute {
+    public readonly int Priority = priority;
+}
+
+[AttributeUsage(AttributeTargets.Field)]
 public class TweakSliderAttribute : Attribute {
     internal object LowerBound;
     internal object UpperBound;
