@@ -25,7 +25,8 @@ internal static class TweakHandler {
         { typeof(Vector2), TweakType.Vector2 },
         { typeof(Vector3), TweakType.Vector3 },
         { typeof(Index2), TweakType.Index2 },
-        { typeof(HexIndex), TweakType.HexIndex }
+        { typeof(HexIndex), TweakType.HexIndex },
+        { typeof(Color), TweakType.Color }
     };
     public static List<Tweak> Tweaks = [];
 

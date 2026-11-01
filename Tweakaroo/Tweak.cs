@@ -30,6 +30,7 @@ internal class Tweak {
             TweakType.Vector3 => [false, false, false],
             TweakType.Index2 => [false, false],
             TweakType.HexIndex => [false, false],
+            TweakType.Color => [false, false, false, false],
             _ => [false]
         };
     }

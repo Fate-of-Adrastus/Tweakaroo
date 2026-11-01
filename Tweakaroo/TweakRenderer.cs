@@ -58,6 +58,9 @@ internal static class TweakRenderer {
                 case TweakType.HexIndex:
                     delta = RenderHexIndex(position, tweak);
                     break;
+                case TweakType.Color:
+                    delta = RenderColor(position, tweak);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -66,7 +69,7 @@ internal static class TweakRenderer {
             width = float.Max(width, delta.X);
         }
 
-        return Bounds2.WithCorners(position, position + new Vector2(width + 10f, offset - position.Y));
+        return Bounds2.WithCorners(position, position + new Vector2(width - 30f, offset - position.Y));
     }
     public static Vector2 RenderNumeric(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
@@ -261,6 +264,29 @@ internal static class TweakRenderer {
         }
         return new Vector2(width, pos.Y - origY);
     }
+    public static Vector2 RenderColor(Vector2 pos, Tweak tweak) {
+        float origY = pos.Y;
+        Color currentValue = (Color)tweak.Getter.Invoke(null, []);
+        float width = 0f;
+
+        var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+        pos += new Vector2(0, -bounds.Height);
+        width = float.Max(width, bounds.Width);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.R, newValue => tweak.Setter.Invoke(null, [new Color((float)newValue, currentValue.G, currentValue.B, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
+        pos += new Vector2(0, bounds.Height);
+        width = float.Max(width, bounds.Width);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.G, newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, (float)newValue, currentValue.B, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
+        pos += new Vector2(0, bounds.Height);
+        width = float.Max(width, bounds.Width);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.B, newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, currentValue.G, (float)newValue, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[2]);
+        pos += new Vector2(0, bounds.Height);
+        width = float.Max(width, bounds.Width);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.A, newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, currentValue.G, currentValue.B, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[3]);
+        pos += new Vector2(0, bounds.Height);
+        width = float.Max(width, bounds.Width);
+
+        return new Vector2(width, pos.Y - origY);
+    }
 
 
     private static Bounds2 TextInputButton(Vector2 pos, object currentValue, Predicate<string> checkValid, Action<string> updateValue, TweakType type) {
@@ -371,6 +397,8 @@ internal static class TweakRenderer {
             TweakType.Vector3 => ((Vector3)obj).ToString().Trim('(', ')'),
             TweakType.Index2 => ((Index2)obj).ToString().Trim('(', ')'),
             TweakType.HexIndex => ((HexIndex)obj).Q.ToString() + ", " + ((HexIndex)obj).R.ToString(),
+            TweakType.Color => ((Color)obj).Packed().r.ToString() + ", " + ((Color)obj).Packed().g.ToString()
+                + ", " + ((Color)obj).Packed().b.ToString() + ", " + ((Color)obj).Packed().a.ToString(),
             _ => throw new NotImplementedException()
         };
     }
@@ -487,8 +515,10 @@ internal static class TweakRenderer {
                         updatedValue = new HexIndex(iX, iY);
                 }
                 break;
-            default:
+            case TweakType.Color:
                 throw new InvalidOperationException();
+            default:
+                throw new NotImplementedException();
         }
         return success;
     }

@@ -50,7 +50,7 @@ public class patch_GameLogic {
     [TweakPriority(1)]
     public static BoundsPosition Alignment;
     [Tweak]
-    [TweakSlider(0f, -100f, 0f, 100f)]
+    [TweakSlider(0f, -100f, 200f, 100f)]
     public static Vector2 offset;
     [Tweak]
     [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f)]
@@ -63,6 +63,8 @@ public class patch_GameLogic {
     public static Index2 Index2;
     [Tweak]
     public static HexIndex HexParsed = new(-2, -2);
+    [Tweak]
+    public static Color Color = Color.White;
 
 
     internal bool tweakaroo_ShouldRenderOverlay;
@@ -95,7 +97,7 @@ public class patch_GameLogic {
             TextureRenderer.RenderRepeating(UI.BackgroundLarger, Color.White.WithAlpha(Alpha), bounds.Min, bounds.Size);
             using (tweakaroo_Scrollbar.RenderScrollbar(bounds.Min, bounds.Size.CeilingToInt(), 0, -bounds.Width)) {
                 RenderTargetStackManager.Clear(Color.Transparent);
-                TextureRenderer.Render(TweakRenderer.OverlayTarget.renderedTexture, Color.White, Vector2.Zero);
+                TextureRenderer.Render(TweakRenderer.OverlayTarget.renderedTexture, Color, Vector2.Zero);
             }
 
             List<IScreen> screens = TweakRenderer.overlayScreens.stack;
