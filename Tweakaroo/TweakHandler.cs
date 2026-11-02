@@ -67,6 +67,9 @@ internal static class TweakHandler {
                 var sliderData = tweak.GetCustomAttributes<TweakSliderAttribute>().First();
                 Tweaks[^1].LowerBound = sliderData.LowerBound;
                 Tweaks[^1].UpperBound = sliderData.UpperBound;
+
+                if (tweak.GetCustomAttributes<TweakSliderStepsize>().Any())
+                    Tweaks[^1].StepSizes = tweak.GetCustomAttributes<TweakSliderStepsize>().First().stepSizes;
             }
         }
 
@@ -101,7 +104,7 @@ internal static class TweakHandler {
                         !((object[])sliderData.UpperBound).All(obj => typeof(float).IsAssignableFrom(obj.GetType())) ||
                         !((object[])sliderData.LowerBound).All(obj => typeof(float).IsAssignableFrom(obj.GetType()))
                     ) {
-                        errors.Add(new InvalidTweakError(field, "Field beforeCursor is incompatible with provided slider bounds.\n  Did you forget to add the 'f' after the numeric beforeCursor to make it a float/double?\n  You must provide 6 float values for a Vector2 slider."));
+                        errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider bounds.\n  Did you forget to add the 'f' after the numeric value to make it a float/double?\n  You must provide 6 float values for a Vector2 slider."));
                     }
                 } else if (field.FieldType == typeof(Index2) || field.FieldType == typeof(HexIndex)) {
                     if (!typeof(object[]).IsAssignableFrom(sliderData.UpperBound.GetType()) ||
@@ -111,12 +114,39 @@ internal static class TweakHandler {
                         !((object[])sliderData.UpperBound).All(obj => typeof(int).IsAssignableFrom(obj.GetType())) ||
                         !((object[])sliderData.LowerBound).All(obj => typeof(int).IsAssignableFrom(obj.GetType()))
                     ) {
-                        errors.Add(new InvalidTweakError(field, "Field beforeCursor is incompatible with provided slider bounds.\n  You must provide 4 integer values for an Index2 or HexIndex slider."));
+                        errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider bounds.\n  You must provide 4 integer values for an Index2 or HexIndex slider."));
                     }
                 } else if (!field.FieldType.IsAssignableFrom(sliderData.UpperBound.GetType()) ||
                     !field.FieldType.IsAssignableFrom(sliderData.LowerBound.GetType())
                 ) {
-                    errors.Add(new InvalidTweakError(field, "Field beforeCursor is incompatible with provided slider bounds.\n  Did you forget to add the 'f/d' after the numeric beforeCursor to make it a float/double?"));
+                    errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider bounds.\n  Did you forget to add the 'f/d' after the numeric value to make it a float/double?"));
+                }
+
+                if (field.GetCustomAttributes<TweakSliderStepsize>().Any()) {
+                    var sliderData2 = field.GetCustomAttributes<TweakSliderStepsize>().First();
+                    if (field.FieldType == typeof(Vector2)) {
+                        if (sliderData2.stepSizes.Length != 2 ||
+                            !sliderData2.stepSizes.All(obj => obj == null || typeof(float).IsAssignableFrom(obj.GetType()))
+                        ) {
+                            errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider step sizes.\n  Did you forget to add the 'f' after the numeric value to make it a float/double?\n  You must provide 2 float values for a Vector2 slider."));
+                        }
+                    } else if (field.FieldType == typeof(Vector3)) {
+                        if (sliderData2.stepSizes.Length != 3 ||
+                            !sliderData2.stepSizes.All(obj => obj == null || typeof(float).IsAssignableFrom(obj.GetType()))
+                        ) {
+                            errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider step sizes.\n  Did you forget to add the 'f' after the numeric value to make it a float/double?\n  You must provide 3 float values for a Vector3 slider."));
+                        }
+                    } else if (field.FieldType == typeof(Index2) || field.FieldType == typeof(HexIndex)) {
+                        if (sliderData2.stepSizes.Length != 2 ||
+                            !sliderData2.stepSizes.All(obj => obj == null || typeof(int).IsAssignableFrom(obj.GetType()))
+                        ) {
+                            errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider step sizes.\n  You must provide 2 integer values for an Index2 or HexIndex slider."));
+                        }
+                    } else if (sliderData2.stepSizes.Length != 1 ||
+                            !sliderData2.stepSizes.All(obj => obj == null || field.FieldType.IsAssignableFrom(obj.GetType()))
+                    ) {
+                        errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider step sizes.\n  Did you forget to add the 'f/d' after the numeric value to make it a float/double?"));
+                    }
                 }
             }
             return errors;

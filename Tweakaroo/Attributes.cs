@@ -32,3 +32,18 @@ public class TweakSliderAttribute : Attribute {
         UpperBound = new object[] { upperBoundX, upperBoundY, upperBoundZ };
     }
 }
+
+[AttributeUsage(AttributeTargets.Field)]
+public class TweakSliderStepsize : Attribute {
+    internal object[] stepSizes;
+
+    public TweakSliderStepsize(object stepSize) {
+        stepSizes = [stepSize];
+    }
+    public TweakSliderStepsize(object stepSizeX, object stepSizeY) {
+        stepSizes = [stepSizeX, stepSizeY];
+    }
+    public TweakSliderStepsize(object stepSizeX, object stepSizeY, object stepSizeZ) {
+        stepSizes = [stepSizeX, stepSizeY, stepSizeZ];
+    }
+}

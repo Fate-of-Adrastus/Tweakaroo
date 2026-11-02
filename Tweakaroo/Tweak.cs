@@ -15,6 +15,7 @@ internal class Tweak {
 
     public object UpperBound;
     public object LowerBound;
+    public object[] StepSizes;
 
     public int DrawPriority;
     public bool[] CurrentlyEdited;
@@ -32,6 +33,14 @@ internal class Tweak {
             TweakType.HexIndex => [false, false],
             TweakType.Color => [false, false, false, false],
             _ => [false]
+        };
+        StepSizes = type switch {
+            TweakType.Vector2 => [null, null],
+            TweakType.Vector3 => [null, null, null],
+            TweakType.Index2 => [null, null],
+            TweakType.HexIndex => [null, null],
+            TweakType.Color => [null, null, null, null],
+            _ => [null]
         };
     }
 }

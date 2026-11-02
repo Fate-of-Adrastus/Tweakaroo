@@ -34,6 +34,7 @@ public class patch_GameLogic {
 
     [Tweak("Alpha")]
     [TweakSlider(0f, 1f)]
+    [TweakSliderStepsize(0.02f)]
     public static float Alpha = 0.72f;
 
     [Tweak("String-parsed Float")]
@@ -50,15 +51,18 @@ public class patch_GameLogic {
     public static BoundsPosition Alignment;
     [Tweak]
     [TweakSlider(0f, -100f, 200f, 100f)]
+    [TweakSliderStepsize(1f, 1f)]
     public static Vector2 offset;
     [Tweak]
     [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f)]
+    [TweakSliderStepsize(0.5f, null, 4f)]
     public static Vector3 Vec3D;
     [Tweak]
     [TweakSlider(0, 0, 5, 5)]
     public static HexIndex Hex = new(4, 5);
     [Tweak]
     [TweakSlider(0, 20, 5, 40)]
+    [TweakSliderStepsize(null, 4)]
     public static Index2 Index2;
     [Tweak]
     public static HexIndex HexParsed = new(-2, -2);

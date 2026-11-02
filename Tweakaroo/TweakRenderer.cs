@@ -79,7 +79,7 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, tweak.UpperBound, tweak.LowerBound, currentValue, newValue => tweak.Setter.Invoke(null, [newValue]), tweak.TweakType, ref tweak.CurrentlyEdited[0]);
+            bounds = SliderBar(pos, tweak.UpperBound, tweak.LowerBound, currentValue, tweak.StepSizes[0], newValue => tweak.Setter.Invoke(null, [newValue]), tweak.TweakType, ref tweak.CurrentlyEdited[0]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         } else {
@@ -159,10 +159,10 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, newValue => tweak.Setter.Invoke(null, [new Vector2((float)newValue, currentValue.Y)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, tweak.StepSizes[0], newValue => tweak.Setter.Invoke(null, [new Vector2((float)newValue, currentValue.Y)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, newValue => tweak.Setter.Invoke(null, [new Vector2(currentValue.X, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, tweak.StepSizes[1], newValue => tweak.Setter.Invoke(null, [new Vector2(currentValue.X, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         } else {
@@ -187,13 +187,13 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, newValue => tweak.Setter.Invoke(null, [new Vector3((float)newValue, currentValue.Y, currentValue.Z)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, tweak.StepSizes[0], newValue => tweak.Setter.Invoke(null, [new Vector3((float)newValue, currentValue.Y, currentValue.Z)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, newValue => tweak.Setter.Invoke(null, [new Vector3(currentValue.X, (float)newValue, currentValue.Z)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, tweak.StepSizes[1], newValue => tweak.Setter.Invoke(null, [new Vector3(currentValue.X, (float)newValue, currentValue.Z)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[2], lowerBound[2], currentValue.Z, newValue => tweak.Setter.Invoke(null, [new Vector3(currentValue.X, currentValue.Y, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[2]);
+            bounds = SliderBar(pos, upperBound[2], lowerBound[2], currentValue.Z, tweak.StepSizes[2], newValue => tweak.Setter.Invoke(null, [new Vector3(currentValue.X, currentValue.Y, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[2]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         } else {
@@ -218,10 +218,10 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, newValue => tweak.Setter.Invoke(null, [new Index2((int)newValue, currentValue.Y)]), TweakType.Int, ref tweak.CurrentlyEdited[0]);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.X, tweak.StepSizes[0], newValue => tweak.Setter.Invoke(null, [new Index2((int)newValue, currentValue.Y)]), TweakType.Int, ref tweak.CurrentlyEdited[0]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, newValue => tweak.Setter.Invoke(null, [new Index2(currentValue.X, (int)newValue)]), TweakType.Int, ref tweak.CurrentlyEdited[1]);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.Y, tweak.StepSizes[1], newValue => tweak.Setter.Invoke(null, [new Index2(currentValue.X, (int)newValue)]), TweakType.Int, ref tweak.CurrentlyEdited[1]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         } else {
@@ -246,10 +246,10 @@ internal static class TweakRenderer {
             var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
             pos += new Vector2(0, -bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.Q, newValue => tweak.Setter.Invoke(null, [new HexIndex((int)newValue, currentValue.R)]), TweakType.Int, ref tweak.CurrentlyEdited[0]);
+            bounds = SliderBar(pos, upperBound[0], lowerBound[0], currentValue.Q, tweak.StepSizes[0], newValue => tweak.Setter.Invoke(null, [new HexIndex((int)newValue, currentValue.R)]), TweakType.Int, ref tweak.CurrentlyEdited[0]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
-            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.R, newValue => tweak.Setter.Invoke(null, [new HexIndex(currentValue.Q, (int)newValue)]), TweakType.Int, ref tweak.CurrentlyEdited[1]);
+            bounds = SliderBar(pos, upperBound[1], lowerBound[1], currentValue.R, tweak.StepSizes[1], newValue => tweak.Setter.Invoke(null, [new HexIndex(currentValue.Q, (int)newValue)]), TweakType.Int, ref tweak.CurrentlyEdited[1]);
             pos += new Vector2(0, bounds.Height);
             width = float.Max(width, bounds.Width);
         } else {
@@ -271,16 +271,16 @@ internal static class TweakRenderer {
         var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
         pos += new Vector2(0, -bounds.Height);
         width = float.Max(width, bounds.Width);
-        bounds = SliderBar(pos, 1f, 0f, currentValue.R, newValue => tweak.Setter.Invoke(null, [new Color((float)newValue, currentValue.G, currentValue.B, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.R, tweak.StepSizes[0], newValue => tweak.Setter.Invoke(null, [new Color((float)newValue, currentValue.G, currentValue.B, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[0]);
         pos += new Vector2(0, bounds.Height);
         width = float.Max(width, bounds.Width);
-        bounds = SliderBar(pos, 1f, 0f, currentValue.G, newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, (float)newValue, currentValue.B, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.G, tweak.StepSizes[1], newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, (float)newValue, currentValue.B, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[1]);
         pos += new Vector2(0, bounds.Height);
         width = float.Max(width, bounds.Width);
-        bounds = SliderBar(pos, 1f, 0f, currentValue.B, newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, currentValue.G, (float)newValue, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[2]);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.B, tweak.StepSizes[2], newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, currentValue.G, (float)newValue, currentValue.A)]), TweakType.Float, ref tweak.CurrentlyEdited[2]);
         pos += new Vector2(0, bounds.Height);
         width = float.Max(width, bounds.Width);
-        bounds = SliderBar(pos, 1f, 0f, currentValue.A, newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, currentValue.G, currentValue.B, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[3]);
+        bounds = SliderBar(pos, 1f, 0f, currentValue.A, tweak.StepSizes[3], newValue => tweak.Setter.Invoke(null, [new Color(currentValue.R, currentValue.G, currentValue.B, (float)newValue)]), TweakType.Float, ref tweak.CurrentlyEdited[3]);
         pos += new Vector2(0, bounds.Height);
         width = float.Max(width, bounds.Width);
 
@@ -302,7 +302,7 @@ internal static class TweakRenderer {
         bounds = Bounds2.WithSize(pos.X, pos.Y, width, -bounds.Height);
         return bounds;
     }
-    private static Bounds2 SliderBar(Vector2 pos, object upperBound, object lowerBound, object currentValue, Action<object> updateValue, TweakType type, ref bool edited) {
+    private static Bounds2 SliderBar(Vector2 pos, object upperBound, object lowerBound, object currentValue, object stepSize, Action<object> updateValue, TweakType type, ref bool edited) {
         var origPos = pos;
         var bounds = TextureRenderer.RenderText(TypeSafeString(lowerBound, type), pos, Assets.fonts.cormorant_15, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
         var backStepPosition = pos + new Vector2(bounds.Width, float.Round(-Assets.textures.UI.volume.GetHeight()/ 2.5f));
@@ -314,6 +314,8 @@ internal static class TweakRenderer {
 
         if (edited) {
             ValueFromProgress(updated, upperBound, lowerBound, type);
+            if (stepSize != null)
+                GetStepped(currentValue, updatedValue, stepSize, type);
             updateValue(updatedValue);
         }
         return Bounds2.WithSize(origPos, pos - origPos + new Vector2(bounds.Width, 0));
@@ -387,13 +389,13 @@ internal static class TweakRenderer {
             TweakType.ULong => ((ulong)obj).ToString(),
             TweakType.SByte => ((sbyte)obj).ToString(),
             TweakType.Byte => ((byte)obj).ToString(),
-            TweakType.Float => ((float)obj).ToString(),
-            TweakType.Double => ((double)obj).ToString(),
+            TweakType.Float => float.Round((float)obj, 4).ToString(),
+            TweakType.Double => double.Round((double)obj, 4).ToString(),
             TweakType.String => ((string)obj).ToString(),
             TweakType.Boolean => ((bool)obj) ? "True" : "False",
             TweakType.EnumValue => ((Enum)obj).ToString(),
-            TweakType.Vector2 => ((Vector2)obj).ToString().Trim('(', ')'),
-            TweakType.Vector3 => ((Vector3)obj).ToString().Trim('(', ')'),
+            TweakType.Vector2 => float.Round(((Vector2)obj).X, 4) + ", " + float.Round(((Vector2)obj).Y, 4),
+            TweakType.Vector3 => float.Round(((Vector3)obj).X, 4) + ", " + float.Round(((Vector3)obj).Y, 4) + ", " + float.Round(((Vector3)obj).Z, 4),
             TweakType.Index2 => ((Index2)obj).ToString().Trim('(', ')'),
             TweakType.HexIndex => ((HexIndex)obj).Q.ToString() + ", " + ((HexIndex)obj).R.ToString(),
             TweakType.Color => ((Color)obj).Packed().r.ToString() + ", " + ((Color)obj).Packed().g.ToString()
@@ -520,5 +522,61 @@ internal static class TweakRenderer {
                 throw new NotImplementedException();
         }
         return success;
+    }
+    private static void GetStepped(object oldValue, object newValue, object stepSize, TweakType type) {
+        updatedValue = oldValue;
+        switch (type) {
+            case TweakType.Short:
+                while (((short)newValue) - ((short)updatedValue) >= (short)stepSize) updatedValue = (short)updatedValue + (short)stepSize;
+                while (((short)updatedValue) - ((short)newValue) >= (short)stepSize) updatedValue = (short)updatedValue - (short)stepSize;
+                break;
+            case TweakType.UShort:
+                while (((ushort)newValue) - ((ushort)updatedValue) >= (ushort)stepSize) updatedValue = (ushort)updatedValue + (ushort)stepSize;
+                while (((ushort)updatedValue) - ((ushort)newValue) >= (ushort)stepSize) updatedValue = (ushort)updatedValue - (ushort)stepSize;
+                break;
+            case TweakType.Int:
+                while (((int)newValue) - ((int)updatedValue) >= (int)stepSize) updatedValue = (int)updatedValue + (int)stepSize;
+                while (((int)updatedValue) - ((int)newValue) >= (int)stepSize) updatedValue = (int)updatedValue - (int)stepSize;
+                break;
+            case TweakType.UInt:
+                while (((uint)newValue) - ((uint)updatedValue) >= (uint)stepSize) updatedValue = (uint)updatedValue + (uint)stepSize;
+                while (((uint)updatedValue) - ((uint)newValue) >= (uint)stepSize) updatedValue = (uint)updatedValue - (uint)stepSize;
+                break;
+            case TweakType.Long:
+                while (((long)newValue) - ((long)updatedValue) >= (long)stepSize) updatedValue = (long)updatedValue + (long)stepSize;
+                while (((long)updatedValue) - ((long)newValue) >= (long)stepSize) updatedValue = (long)updatedValue - (long)stepSize;
+                break;
+            case TweakType.ULong:
+                while (((ulong)newValue) - ((ulong)updatedValue) >= (ulong)stepSize) updatedValue = (ulong)updatedValue + (ulong)stepSize;
+                while (((ulong)updatedValue) - ((ulong)newValue) >= (ulong)stepSize) updatedValue = (ulong)updatedValue - (ulong)stepSize;
+                break;
+            case TweakType.SByte:
+                while (((sbyte)newValue) - ((sbyte)updatedValue) >= (sbyte)stepSize) updatedValue = (sbyte)updatedValue + (sbyte)stepSize;
+                while (((sbyte)updatedValue) - ((sbyte)newValue) >= (sbyte)stepSize) updatedValue = (sbyte)updatedValue - (sbyte)stepSize;
+                break;
+            case TweakType.Byte:
+                while (((byte)newValue) - ((byte)updatedValue) >= (byte)stepSize) updatedValue = (byte)updatedValue + (byte)stepSize;
+                while (((byte)updatedValue) - ((byte)newValue) >= (byte)stepSize) updatedValue = (byte)updatedValue - (byte)stepSize;
+                break;
+            case TweakType.Float:
+                while (((float)newValue) - ((float)updatedValue) >= (float)stepSize) updatedValue = (float)updatedValue + (float)stepSize;
+                while (((float)updatedValue) - ((float)newValue) >= (float)stepSize) updatedValue = (float)updatedValue - (float)stepSize;
+                break;
+            case TweakType.Double:
+                while (((double)newValue) - ((double)updatedValue) >= (double)stepSize) updatedValue = (double)updatedValue + (double)stepSize;
+                while (((double)updatedValue) - ((double)newValue) >= (double)stepSize) updatedValue = (double)updatedValue - (double)stepSize;
+                break;
+            case TweakType.Boolean:
+            case TweakType.EnumValue:
+            case TweakType.String:
+            case TweakType.Vector2:
+            case TweakType.Vector3:
+            case TweakType.Index2:
+            case TweakType.HexIndex:
+            case TweakType.Color:
+                throw new InvalidOperationException();
+            default:
+                throw new NotImplementedException();
+        }
     }
 }
