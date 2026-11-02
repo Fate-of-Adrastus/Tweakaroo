@@ -4,6 +4,7 @@ using MonoMod;
 using MonoMod.Cil;
 using Quintessential;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Tweakaroo;
 
@@ -30,44 +31,44 @@ public class patch_GameLogic {
 
     [Tweak("Test Int")]
     [TweakSlider(0, 20, true)]
-    public static int TestVal;
+    private static readonly int TestVal;
 
     [Tweak("Alpha")]
     [TweakSlider(0f, 1f)]
     [TweakSliderStepsize(0.02f)]
-    public static float Alpha = 0.72f;
+    internal static readonly float Alpha = 0.72f;
 
     [Tweak("String-parsed Float")]
-    public static float StringParsedF = 3.1415f;
+    private static readonly float StringParsedF = 3.1415f;
 
     [Tweak("String-parsed Sbyte")]
-    public static sbyte StringParsedSb = -32;
+    private static readonly sbyte StringParsedSb = -32;
     [Tweak("Bool Test")]
-    public static bool A = true;
+    internal static readonly bool A = true;
     [Tweak("String from the test!")]
-    public static string s = "When life gives you lemons, ...";
+    private static readonly string s = "When life gives you lemons, ...";
     [Tweak]
     [TweakPriority(1)]
-    public static BoundsPosition Alignment;
+    private static readonly BoundsPosition Alignment;
     [Tweak]
     [TweakSlider(0f, -100f, 200f, 100f)]
     [TweakSliderStepsize(1f, 1f)]
-    public static Vector2 offset;
+    private static readonly Vector2 offset;
     [Tweak]
     [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f, true)]
     [TweakSliderStepsize(0.5f, null, 4f)]
-    public static Vector3 Vec3D;
+    private static readonly Vector3 Vec3D;
     [Tweak]
     [TweakSlider(0, 0, 5, 5)]
-    public static HexIndex Hex = new(4, 5);
+    private static readonly HexIndex Hex = new(4, 5);
     [Tweak]
     [TweakSlider(0, 20, 5, 40)]
     [TweakSliderStepsize(null, 4)]
-    public static Index2 Index2;
+    private static readonly Index2 Index2;
     [Tweak]
-    public static HexIndex HexParsed = new(-2, -2);
+    private static readonly HexIndex HexParsed = new(-2, -2);
     [Tweak]
-    public static Color Color = Color.White;
+    private static readonly Color Color = Color.White;
 
 
     internal bool tweakaroo_ShouldRenderOverlay;

@@ -72,7 +72,7 @@ internal static class TweakRenderer {
     }
     public static Vector2 RenderNumeric(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
-        object currentValue = tweak.Getter.Invoke(null, []);
+        object currentValue = tweak.Getter.Invoke(null);
         float width = 0f;
         if (tweak.UpperBound != null && tweak.LowerBound != null) {
 
@@ -102,7 +102,7 @@ internal static class TweakRenderer {
     }
     public static Vector2 RenderString(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
-        object currentValue = tweak.Getter.Invoke(null, []);
+        object currentValue = tweak.Getter.Invoke(null);
         float width = 0;
 
         var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
@@ -118,7 +118,7 @@ internal static class TweakRenderer {
         float origY = pos.Y;
         float width = 0;
 
-        bool currentValue = (bool)tweak.Getter.Invoke(null, []);
+        bool currentValue = (bool)tweak.Getter.Invoke(null);
         var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
         pos += new Vector2(0, -bounds.Height);
         width = float.Max(width, bounds.Width);
@@ -135,7 +135,7 @@ internal static class TweakRenderer {
         float origY = pos.Y;
         float width = 0;
 
-        object currentValue = tweak.Getter.Invoke(null, []);
+        object currentValue = tweak.Getter.Invoke(null);
         var bounds = TextureRenderer.RenderText(tweak.Name, pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
         pos += new Vector2(0, -bounds.Height);
         width = float.Max(width, bounds.Width);
@@ -157,7 +157,7 @@ internal static class TweakRenderer {
     }
     public static Vector2 RenderVector2(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
-        Vector2 currentValue = (Vector2)tweak.Getter.Invoke(null, []);
+        Vector2 currentValue = (Vector2)tweak.Getter.Invoke(null);
         float width = 0f;
         if (tweak.UpperBound != null && tweak.LowerBound != null) {
             object[] upperBound = (object[])tweak.UpperBound;
@@ -191,7 +191,7 @@ internal static class TweakRenderer {
     }
     public static Vector2 RenderVector3(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
-        Vector3 currentValue = (Vector3)tweak.Getter.Invoke(null, []);
+        Vector3 currentValue = (Vector3)tweak.Getter.Invoke(null);
         float width = 0f;
         if (tweak.UpperBound != null && tweak.LowerBound != null) {
             object[] upperBound = (object[])tweak.UpperBound;
@@ -228,7 +228,7 @@ internal static class TweakRenderer {
     }
     public static Vector2 RenderIndex2(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
-        Index2 currentValue = (Index2)tweak.Getter.Invoke(null, []);
+        Index2 currentValue = (Index2)tweak.Getter.Invoke(null);
         float width = 0f;
         if (tweak.UpperBound != null && tweak.LowerBound != null) {
             object[] upperBound = (object[])tweak.UpperBound;
@@ -262,7 +262,7 @@ internal static class TweakRenderer {
     }
     public static Vector2 RenderHexIndex(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
-        HexIndex currentValue = (HexIndex)tweak.Getter.Invoke(null, []);
+        HexIndex currentValue = (HexIndex)tweak.Getter.Invoke(null);
         float width = 0f;
         if (tweak.UpperBound != null && tweak.LowerBound != null) {
             object[] upperBound = (object[])tweak.UpperBound;
@@ -296,7 +296,7 @@ internal static class TweakRenderer {
     }
     public static Vector2 RenderColor(Vector2 pos, Tweak tweak) {
         float origY = pos.Y;
-        Color currentValue = (Color)tweak.Getter.Invoke(null, []);
+        Color currentValue = (Color)tweak.Getter.Invoke(null);
         float width = 0f;
 
         var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);

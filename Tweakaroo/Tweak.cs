@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Tweakaroo;
@@ -10,7 +11,7 @@ internal class Tweak {
 
     public string Name;
 
-    public DynamicMethod Getter;
+    public Func<object, object> Getter;
     public DynamicMethod Setter;
 
     public object UpperBound;
@@ -20,7 +21,7 @@ internal class Tweak {
 
     public int DrawPriority;
     public bool[] CurrentlyEdited;
-    public Tweak(FieldInfo field, TweakType type, string name, DynamicMethod getter, DynamicMethod setter, int drawPriority) {
+    public Tweak(FieldInfo field, TweakType type, string name, Func<object, object> getter, DynamicMethod setter, int drawPriority) {
         Field = field;
         TweakType = type;
         Name = name;

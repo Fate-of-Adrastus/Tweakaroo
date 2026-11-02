@@ -156,11 +156,11 @@ internal static class TweakHandler {
 
     private static IEnumerable<FieldInfo> GetAllFieldsForAttribute(Type attributeType) {
         return Assembly.GetExecutingAssembly().GetTypes().SelectMany(type => {
-            return type.GetFields().Where(field => field.GetCustomAttributes(attributeType, false).Length > 0);
+            return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance).Where(field => field.GetCustomAttributes(attributeType, false).Length > 0);
         });
     }
 
-    private static (DynamicMethod getter, DynamicMethod setter) GetSetterAndGetter(FieldInfo field) {
+    private static (Func<object, object> getter, DynamicMethod setter) GetSetterAndGetter(FieldInfo field) {
         // Using Dynamic Methods so we can set InitOnly fields too.
         var setter = new DynamicMethod(
             name: "set_" + field.Name,
@@ -174,16 +174,23 @@ internal static class TweakHandler {
         IL.Emit(OpCodes.Stsfld, field);
         IL.Emit(OpCodes.Ret);
 
-        var getter = new DynamicMethod(
-            name: "get_" + field.Name,
-            returnType: field.FieldType,
-            parameterTypes: [],
-            restrictedSkipVisibility: true
-        );
-        IL = getter.GetILGenerator();
+        // readonly fields only return the actual value if we invoke them this way.
+        // Is this safe?
+        // No.
+        object getter(object self) {
+            var getter = new DynamicMethod(
+                name: "get_" + field.Name,
+                returnType: field.FieldType,
+                parameterTypes: [],
+                restrictedSkipVisibility: true
+            );
+            IL = getter.GetILGenerator();
 
-        IL.Emit(OpCodes.Ldsfld, field);
-        IL.Emit(OpCodes.Ret);
+            IL.Emit(OpCodes.Ldsfld, field);
+            IL.Emit(OpCodes.Ret);
+
+            return getter.Invoke(self, []);
+        }
 
         return (getter, setter);
     }
