@@ -29,7 +29,7 @@ public class patch_GameLogic {
     private RenderTarget gameRenderTarget;
 
     [Tweak("Test Int")]
-    [TweakSlider(0, 20)]
+    [TweakSlider(0, 20, true)]
     public static int TestVal;
 
     [Tweak("Alpha")]
@@ -54,7 +54,7 @@ public class patch_GameLogic {
     [TweakSliderStepsize(1f, 1f)]
     public static Vector2 offset;
     [Tweak]
-    [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f)]
+    [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f, true)]
     [TweakSliderStepsize(0.5f, null, 4f)]
     public static Vector3 Vec3D;
     [Tweak]

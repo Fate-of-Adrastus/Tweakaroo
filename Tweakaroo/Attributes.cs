@@ -16,20 +16,24 @@ public class TweakPriorityAttribute(int priority) : Attribute {
 public class TweakSliderAttribute : Attribute {
     internal object LowerBound;
     internal object UpperBound;
+    internal bool AllowTextEdit;
 
-    public TweakSliderAttribute(object lowerBound, object upperBound) {
+    public TweakSliderAttribute(object lowerBound, object upperBound, bool allowTextEdit = false) {
         LowerBound = lowerBound;
         UpperBound = upperBound;
+        AllowTextEdit = allowTextEdit;
     }
 
-    public TweakSliderAttribute(object lowerBoundX, object lowerBoundY, object upperBoundX, object upperBoundY) {
+    public TweakSliderAttribute(object lowerBoundX, object lowerBoundY, object upperBoundX, object upperBoundY, bool allowTextEdit = false) {
         LowerBound = new object[] { lowerBoundX, lowerBoundY };
         UpperBound = new object[] { upperBoundX, upperBoundY };
+        AllowTextEdit = allowTextEdit;
     }
 
-    public TweakSliderAttribute(object lowerBoundX, object lowerBoundY, object lowerBoundZ, object upperBoundX, object upperBoundY, object upperBoundZ) {
+    public TweakSliderAttribute(object lowerBoundX, object lowerBoundY, object lowerBoundZ, object upperBoundX, object upperBoundY, object upperBoundZ, bool allowTextEdit = false) {
         LowerBound = new object[] { lowerBoundX, lowerBoundY, lowerBoundZ };
         UpperBound = new object[] { upperBoundX, upperBoundY, upperBoundZ };
+        AllowTextEdit = allowTextEdit;
     }
 }
 

@@ -67,6 +67,7 @@ internal static class TweakHandler {
                 var sliderData = tweak.GetCustomAttributes<TweakSliderAttribute>().First();
                 Tweaks[^1].LowerBound = sliderData.LowerBound;
                 Tweaks[^1].UpperBound = sliderData.UpperBound;
+                Tweaks[^1].AllowTextEdit = sliderData.AllowTextEdit;
 
                 if (tweak.GetCustomAttributes<TweakSliderStepsize>().Any())
                     Tweaks[^1].StepSizes = tweak.GetCustomAttributes<TweakSliderStepsize>().First().stepSizes;

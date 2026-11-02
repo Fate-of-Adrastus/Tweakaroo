@@ -16,6 +16,7 @@ internal class Tweak {
     public object UpperBound;
     public object LowerBound;
     public object[] StepSizes;
+    public bool AllowTextEdit;
 
     public int DrawPriority;
     public bool[] CurrentlyEdited;
