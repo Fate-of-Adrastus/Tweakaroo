@@ -49,6 +49,19 @@ internal class StringInputScreen : IScreen {
             }
             cursorBlinkTimer = 0f;
         }
+        if (InputManager.IsKeyTyped(SDL.SDLKey.SDLK_DELETE) && afterCursor.Length > 0) {
+            if (InputManager.IsModifierKeyHeld(ModifierKeyType.Ctrl)) {
+                while (afterCursor.Length > 0 && afterCursor[0] == ' ') {
+                    afterCursor = afterCursor[1..];
+                }
+                if (afterCursor.Length > 0) {
+                    afterCursor = afterCursor.Contains(' ') ? afterCursor[afterCursor.FirstIndexOf(' ').GetValue()..] : "";
+                }
+            } else {
+                afterCursor = afterCursor[1..];
+            }
+            cursorBlinkTimer = 0f;
+        }
         if (InputManager.IsKeyTyped(SDL.SDLKey.SDLK_LEFT) && beforeCursor.Length > 0) {
             if (InputManager.IsModifierKeyHeld(ModifierKeyType.Ctrl)) {
                 while (beforeCursor.Length > 0 && beforeCursor[^1] == ' ') {
