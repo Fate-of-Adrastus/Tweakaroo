@@ -4,7 +4,6 @@ using MonoMod;
 using MonoMod.Cil;
 using Quintessential;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Tweakaroo;
 
@@ -29,46 +28,46 @@ public class patch_GameLogic {
     [MonoModIgnore]
     private RenderTarget gameRenderTarget;
 
-    [Tweak("Test Int")]
-    [TweakSlider(0, 20, true)]
-    private static readonly int TestVal;
+    //[Tweak("Test Int")]
+    //[TweakSlider(0, 20, true)]
+    //private static readonly int TestVal;
 
-    [Tweak("Alpha")]
-    [TweakSlider(0f, 1f)]
-    [TweakSliderStepsize(0.02f)]
-    internal static readonly float Alpha = 0.72f;
+    //[Tweak("Alpha")]
+    //[TweakSlider(0f, 1f)]
+    //[TweakSliderStepsize(0.02f)]
+    //internal static readonly float Alpha = 0.72f;
 
-    [Tweak("String-parsed Float")]
-    private static readonly float StringParsedF = 3.1415f;
+    //[Tweak("String-parsed Float")]
+    //private static readonly float StringParsedF = 3.1415f;
 
-    [Tweak("String-parsed Sbyte")]
-    private static readonly sbyte StringParsedSb = -32;
-    [Tweak("Bool Test")]
-    internal static readonly bool A = true;
-    [Tweak("String from the test!")]
-    private static readonly string s = "When life gives you lemons, ...";
-    [Tweak]
-    [TweakPriority(1)]
-    private static readonly BoundsPosition Alignment;
-    [Tweak]
-    [TweakSlider(0f, -100f, 200f, 100f)]
-    [TweakSliderStepsize(1f, 1f)]
-    private static readonly Vector2 offset;
-    [Tweak]
-    [TweakSlider(0f, 0f, 0f, 100f, 100f, 100f, true)]
-    [TweakSliderStepsize(0.5f, null, 4f)]
-    private static readonly Vector3 Vec3D;
-    [Tweak]
-    [TweakSlider(0, 0, 5, 5)]
-    private static readonly HexIndex Hex = new(4, 5);
-    [Tweak]
-    [TweakSlider(0, 20, 5, 40)]
-    [TweakSliderStepsize(null, 4)]
-    private static readonly Index2 Index2;
-    [Tweak]
-    private static readonly HexIndex HexParsed = new(-2, -2);
-    [Tweak]
-    private static readonly Color Color = Color.White;
+    //[Tweak("String-parsed Sbyte")]
+    //private static readonly sbyte StringParsedSb = -32;
+    //[Tweak("Bool Test")]
+    //internal static readonly bool A = true;
+    //[Tweak("String from the test!")]
+    //private static readonly string s = "When life gives you lemons, ...";
+    //[Tweak]
+    //[TweakPriority(1)]
+    //private static readonly BoundsPosition Alignment;
+    //[Tweak]
+    //[TweakSlider(0f, -100f, 200f, 100f)]
+    //[TweakSliderStepsize(1f, 1f)]
+    //private static readonly Vector2 offset;
+    //[Tweak]
+    //[TweakSlider(0f, 0f, 0f, 100f, 100f, 100f, true)]
+    //[TweakSliderStepsize(0.5f, null, 4f)]
+    //private static readonly Vector3 Vec3D;
+    //[Tweak]
+    //[TweakSlider(0, 0, 5, 5)]
+    //private static readonly HexIndex Hex = new(4, 5);
+    //[Tweak]
+    //[TweakSlider(0, 20, 5, 40)]
+    //[TweakSliderStepsize(null, 4)]
+    //private static readonly Index2 Index2;
+    //[Tweak]
+    //private static readonly HexIndex HexParsed = new(-2, -2);
+    //[Tweak]
+    //private static readonly Color Color = Color.White;
 
 
     internal bool tweakaroo_ShouldRenderOverlay;
@@ -89,7 +88,7 @@ public class patch_GameLogic {
 
                 if (disableInputForMainOverlay)
                     InputManager.DisableInput();
-                bounds = TweakRenderer.RenderTweaks(tweakaroo_Scrollbar.GetOffset().Y + offset.Y);
+                bounds = TweakRenderer.RenderTweaks(tweakaroo_Scrollbar.GetOffset().Y);
                 if (disableInputForMainOverlay)
                     InputManager.EnableInput();
             }
@@ -98,10 +97,10 @@ public class patch_GameLogic {
             bounds = Bounds2.WithSize( 0f, 0f, bounds.Width + 80f, InputManager.screenSize.Y);
             tweakaroo_MenuWidth = bounds.Min.X + bounds.Width;
 
-            TextureRenderer.RenderRepeating(UI.BackgroundLarger, Color.White.WithAlpha(Alpha), bounds.Min, bounds.Size);
+            TextureRenderer.RenderRepeating(UI.BackgroundLarger, Color.White.WithAlpha(0.72f), bounds.Min, bounds.Size);
             using (tweakaroo_Scrollbar.RenderScrollbar(bounds.Min, bounds.Size.CeilingToInt(), 0, -bounds.Width)) {
                 RenderTargetStackManager.Clear(Color.Transparent);
-                TextureRenderer.Render(TweakRenderer.OverlayTarget.renderedTexture, Color, Vector2.Zero);
+                TextureRenderer.Render(TweakRenderer.OverlayTarget.renderedTexture, Color.White, Vector2.Zero);
             }
 
             List<IScreen> screens = TweakRenderer.overlayScreens.stack;

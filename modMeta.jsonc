@@ -1,9 +1,9 @@
 {
   "mod_id": "tweakaroo",
-  "version": "0.0.1",
-  "mod_page_url": "",
+  "version": "0.2.0",
+  "mod_page_url": "https://github.com/Fate-of-Adrastus/Tweakaroo",
   "dll": "Tweakaroo.dll",
-  "authors": [],
+  "authors": [ "Fate of Adrastus" ],
   "icon": "textures/tweakaroo/icon",
   "mappings": "",
   "dependencies": {
