@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -313,10 +314,28 @@ internal static class TweakRenderer {
         float origY = pos.Y;
         Color currentValue = (Color)tweak.GetValue();
         float width = 0f;
+        string hexName = TypeSafeString(currentValue, tweak.TweakType);
+        string colorValuesName = currentValue.Packed().r.ToString() + ", " + currentValue.Packed().g.ToString()
+                + ", " + currentValue.Packed().b.ToString() + ", " + currentValue.Packed().a.ToString();
 
-        var bounds = TextureRenderer.RenderText(string.Format("{0}: {1}", tweak.Name, TypeSafeString(currentValue, tweak.TweakType)), pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
-        pos += new Vector2(0, -bounds.Height);
+        var bounds = TextureRenderer.RenderText(tweak.Name + ": ", pos, Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
         width = float.Max(width, bounds.Width);
+        float w = bounds.Width;
+        float h = -bounds.Height;
+        bounds = TextureRenderer.RenderText(hexName, pos + new Vector2(w, 0), Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, false);
+
+        bool canEditHex = bounds.Contains(InputManager.MousePos());
+        if (canEditHex && InputManager.IsClickPressed(MouseButtonType.LeftClick)) {
+            PushOverlayScreen(new StringInputScreen(Bounds2.WithSize(Vector2.Zero, InputManager.screenSize), hexName, newValue => { if (TryParseFromString(newValue, tweak)) tweak.SetValue(updatedValue); }, newValue => TryParseFromString(newValue, tweak)));
+            Assets.sounds.click_button.PlaySound(1f);
+        }
+
+        TextureRenderer.RenderText(canEditHex ? ("*" + hexName + "*") : hexName, pos + new Vector2(w, 0), Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, false, true);
+        w += bounds.Width;
+        h = float.Min(h, -bounds.Height);
+        bounds = TextureRenderer.RenderText(", " + colorValuesName, pos + new Vector2(w, 0), Assets.fonts.cormorant_18, UIConsts.lightTextColor, TextAlignment.Left, 1f, 0.6f, float.MaxValue, float.MaxValue, 0, default, null, int.MaxValue, true, true);
+        pos += new Vector2(0, float.Min(h, -bounds.Height));
+        width = float.Max(width, bounds.Width + w);
         bounds = SliderBar(pos, 1f, 0f, currentValue.R, tweak.StepSizes[0], newValue => tweak.SetValue(new Color((float)newValue, currentValue.G, currentValue.B, currentValue.A)), TweakType.Float, ref tweak.CurrentlyEdited[0]);
         pos += new Vector2(0, bounds.Height);
         width = float.Max(width, bounds.Width);
@@ -424,6 +443,19 @@ internal static class TweakRenderer {
         }
         return false;
     }
+    private static string ColorToHex(Color color) {
+        var packed = color.Packed();
+        int colorValue = (packed.r << 16) + (packed.g << 8) + packed.b;
+        return string.Format("#{0:x6}", colorValue);
+    }
+    private static bool TryColorFromHex(string hex, out Color color) {
+        if (hex.Length > 0 && hex[0] == '#') hex = hex[1..];
+        try {
+            int colorValue = int.Parse(hex, NumberStyles.HexNumber);
+            color = Color.FromHex(colorValue);
+        } catch { color = default; return false; }
+        return true;
+    }
 
     private static string TypeSafeString(object obj, TweakType type) {
         return type switch {
@@ -444,8 +476,7 @@ internal static class TweakRenderer {
             TweakType.Vector3 => float.Round(((Vector3)obj).X, 4) + ", " + float.Round(((Vector3)obj).Y, 4) + ", " + float.Round(((Vector3)obj).Z, 4),
             TweakType.Index2 => ((Index2)obj).ToString().Trim('(', ')'),
             TweakType.HexIndex => ((HexIndex)obj).Q.ToString() + ", " + ((HexIndex)obj).R.ToString(),
-            TweakType.Color => ((Color)obj).Packed().r.ToString() + ", " + ((Color)obj).Packed().g.ToString()
-                + ", " + ((Color)obj).Packed().b.ToString() + ", " + ((Color)obj).Packed().a.ToString(),
+            TweakType.Color => ColorToHex((Color)obj),
             _ => throw new NotImplementedException()
         };
     }
@@ -563,7 +594,9 @@ internal static class TweakRenderer {
                 }
                 break;
             case TweakType.Color:
-                throw new InvalidOperationException();
+                success = TryColorFromHex(str, out Color color);
+                updatedValue = color;
+                break;
             default:
                 throw new NotImplementedException();
         }

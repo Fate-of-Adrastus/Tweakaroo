@@ -68,8 +68,8 @@ public class patch_GameLogic {
     //private static readonly Index2 Index2;
     //[Tweak]
     //private static readonly HexIndex HexParsed = new(-2, -2);
-    //[Tweak]
-    //private static readonly Color Color = Color.White;
+    [Tweak]
+    private static readonly Color Color = Color.White;
     //[Tweak("Options String 1:")]
     //[TweakDropdownString("A", "B", "C", "D", "E")]
     //private static readonly string s1 = "A";
