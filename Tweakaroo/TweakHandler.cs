@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.Cecil;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -71,6 +72,20 @@ internal static class TweakHandler {
 
                 if (tweak.GetCustomAttributes<TweakSliderStepsize>().Any())
                     Tweaks[^1].StepSizes = tweak.GetCustomAttributes<TweakSliderStepsize>().First().stepSizes;
+            }
+
+            if (tweak.GetCustomAttributes<TweakDropdownString>().Any()) {
+                var dropdownData = tweak.GetCustomAttributes<TweakDropdownString>().First();
+                if (dropdownData.sourceMethod != null) {
+                    Tweaks[^1].DropdownSource = tweak.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).Single(m => m.Name == dropdownData.sourceMethod);
+                } else {
+                    Tweaks[^1].DropdownStrings = dropdownData.optionNames;
+                }
+            }
+            if (tweak.GetCustomAttributes<TweakSource>().Any()) {
+                var presetGetterSetterData = tweak.GetCustomAttributes<TweakSource>().First();
+                Tweaks[^1].PresetSetter = tweak.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).Single(m => m.Name == presetGetterSetterData.setterName);
+                Tweaks[^1].PresetGetter = tweak.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).Single(m => m.Name == presetGetterSetterData.getterName);
             }
         }
 
@@ -148,6 +163,53 @@ internal static class TweakHandler {
                     ) {
                         errors.Add(new InvalidTweakError(field, "Field value is incompatible with provided slider step sizes.\n  Did you forget to add the 'f/d' after the numeric value to make it a float/double?"));
                     }
+                }
+            }
+            if (field.GetCustomAttributes<TweakDropdownString>().Any()) {
+
+                var dropdownData = field.GetCustomAttributes<TweakDropdownString>().First();
+                if (dropdownData.sourceMethod != null) {
+                    try {
+                        var Source = field.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance).Single(m => m.Name == dropdownData.sourceMethod);
+                        if (Source.ReturnType != typeof(string[]))
+                            errors.Add(new InvalidTweakError(field, "The return type of the source method must be string[]."));
+                        if (Source.GetParameters().Length != 0)
+                            errors.Add(new InvalidTweakError(field, "The source method must not have parameters."));
+                        if (!Source.IsStatic)
+                            errors.Add(new InvalidTweakError(field, "The source method must be static!"));
+                    } catch (Exception ex) {
+                        errors.Add(new InvalidTweakError(field, "Failed to find source method '"+ dropdownData.sourceMethod + "' in type: " + field.DeclaringType.FullName));
+                    }
+                } else {
+                    if (field.FieldType != typeof(string)) {
+                        errors.Add(new InvalidTweakError(field, "String dropdown lists can only be used on string fields!"));
+                    }
+                }
+
+            }
+            if (field.GetCustomAttributes<TweakSource>().Any()) {
+                var presetGetterSetterData = field.GetCustomAttributes<TweakSource>().First();
+                try {
+                    var Setter = field.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance).Single(m => m.Name == presetGetterSetterData.setterName);
+                    if (Setter.ReturnType != typeof(void))
+                        errors.Add(new InvalidTweakError(field, "The return type of the setter method must be void."));
+                    if (Setter.GetParameters().Length != 1 || Setter.GetParameters()[0].ParameterType != field.FieldType)
+                        errors.Add(new InvalidTweakError(field, "The setter method must have a single parameter with the same type as the filed type."));
+                    if (!Setter.IsStatic)
+                        errors.Add(new InvalidTweakError(field, "The setter method must be static!"));
+                } catch (Exception ex) {
+                    errors.Add(new InvalidTweakError(field, "Failed to find setter method '" + presetGetterSetterData.setterName + "' in type: " + field.DeclaringType.FullName));
+                }
+                try {
+                    var Getter = field.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance).Single(m => m.Name == presetGetterSetterData.getterName);
+                    if (Getter.ReturnType != field.FieldType)
+                        errors.Add(new InvalidTweakError(field, "The return type of the getter method must be the same as the filed type."));
+                    if (Getter.GetParameters().Length != 0)
+                        errors.Add(new InvalidTweakError(field, "The getter method must not have parameters."));
+                    if (!Getter.IsStatic)
+                        errors.Add(new InvalidTweakError(field, "The getter method must be static!"));
+                } catch (Exception ex) {
+                    errors.Add(new InvalidTweakError(field, "Failed to find getter method '" + presetGetterSetterData.getterName + "' in type: " + field.DeclaringType.FullName));
                 }
             }
             return errors;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.Cecil;
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -11,13 +12,18 @@ internal class Tweak {
 
     public string Name;
 
-    public Func<object, object> Getter;
-    public DynamicMethod Setter;
+    private Func<object, object> Getter;
+    private DynamicMethod Setter;
+    public MethodInfo PresetGetter;
+    public MethodInfo PresetSetter;
 
     public object UpperBound;
     public object LowerBound;
     public object[] StepSizes;
     public bool AllowTextEdit;
+
+    public string[] DropdownStrings;
+    public MethodInfo DropdownSource;
 
     public int DrawPriority;
     public bool[] CurrentlyEdited;
@@ -44,5 +50,18 @@ internal class Tweak {
             TweakType.Color => [null, null, null, null],
             _ => [null]
         };
+    }
+
+    public object GetValue() {
+        if (PresetGetter is not null)
+            return PresetGetter.Invoke(null, []);
+        else
+            return Getter.Invoke(null);
+    }
+    public void SetValue(object value) {
+        if (PresetSetter is not null)
+            PresetSetter.Invoke(null, [value]);
+        else
+            Setter.Invoke(null, [value]);
     }
 }

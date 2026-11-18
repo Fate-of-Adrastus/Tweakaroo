@@ -3,9 +3,11 @@ using Mono.Cecil.Cil;
 using MonoMod;
 using MonoMod.Cil;
 using Quintessential;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tweakaroo;
+using static Quintessential.Internal.LegacyPuzzleModel;
 
 public class patch_GameLogic {
 
@@ -68,7 +70,19 @@ public class patch_GameLogic {
     //private static readonly HexIndex HexParsed = new(-2, -2);
     //[Tweak]
     //private static readonly Color Color = Color.White;
+    //[Tweak("Options String 1:")]
+    //[TweakDropdownString("A", "B", "C", "D", "E")]
+    //private static readonly string s1 = "A";
 
+    //[Tweak("Atom Type Select:")]
+    //[TweakDropdownString(false, "GetS")]
+    //private static readonly string AtomId = "om:salt";
+    //static string[] GetS() { return [..AtomTypes.atoms.Select(type => type.Id)]; }
+    //[Tweak("Atom Type Name:")]
+    //[TweakSource("SetTest", "GetTest")]
+    //private static readonly string EditedAtomName;
+    //static void SetTest(string value) { AtomTypes.GetByID(AtomId).elementalName = Translations.WithAllLanguages(value); }
+    //static string GetTest() { return AtomTypes.GetByID(AtomId).elementalName; }
 
     internal bool tweakaroo_ShouldRenderOverlay;
     private static readonly Scrollbar tweakaroo_Scrollbar = new();

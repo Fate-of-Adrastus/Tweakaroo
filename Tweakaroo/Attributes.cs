@@ -51,3 +51,27 @@ public class TweakSliderStepsize : Attribute {
         stepSizes = [stepSizeX, stepSizeY, stepSizeZ];
     }
 }
+
+[AttributeUsage(AttributeTargets.Field)]
+public class TweakSource : Attribute {
+    internal string setterName, getterName;
+
+    public TweakSource(string setterName, string getterName) {
+        this.setterName = setterName;
+        this.getterName = getterName;
+    }
+}
+
+[AttributeUsage(AttributeTargets.Field)]
+public class TweakDropdownString : Attribute {
+    internal string[] optionNames;
+    internal string sourceMethod;
+
+    public TweakDropdownString(params string[] optionNames) {
+        this.optionNames = optionNames;
+    }
+
+    public TweakDropdownString(bool unusedBool, string sourceMethod) {
+        this.sourceMethod = sourceMethod;
+    }
+}
