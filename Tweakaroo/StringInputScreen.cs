@@ -50,8 +50,32 @@ internal class StringInputScreen : IScreen {
             TextureRenderer.RenderColor(UIConsts.lightTextColor, Bounds2.WithSize(fullBounds.BottomLeft + new Vector2(1f + beforeCursorW, 1f), new Vector2(2f, 22f)));
         }
 
+        bool wasSpecialAction = false;
+
+        if (InputManager.IsKeyTyped(SDL.SDLKey.SDLK_v) && InputManager.IsModifierKeyHeld(ModifierKeyType.Ctrl)) {
+            wasSpecialAction = true;
+            string clipboardText = SDL.SDL_GetClipboardText();
+            selectionBefore = "";
+            selectionAfter = "";
+            beforeCursor += clipboardText;
+        }
+        if (InputManager.IsKeyTyped(SDL.SDLKey.SDLK_c) && InputManager.IsModifierKeyHeld(ModifierKeyType.Ctrl)) {
+            wasSpecialAction = true;
+            if ((selectionBefore + selectionAfter).Length > 0) {
+                SDL.SDL_SetClipboardText(selectionBefore + selectionAfter);
+            }
+        }
+        if (InputManager.IsKeyTyped(SDL.SDLKey.SDLK_x) && InputManager.IsModifierKeyHeld(ModifierKeyType.Ctrl)) {
+            wasSpecialAction = true;
+            if ((selectionBefore + selectionAfter).Length > 0) {
+                SDL.SDL_SetClipboardText(selectionBefore + selectionAfter);
+                selectionBefore = "";
+                selectionAfter = "";
+            }
+        }
+
         char c = InputManager.GetCharByInput();
-        if (c != '\0') {
+        if (c != '\0' && !wasSpecialAction) {
             beforeCursor = (beforeCursor + c.ToString()).RemoveStyleFormat();
             cursorBlinkTimer = 0f;
         }
