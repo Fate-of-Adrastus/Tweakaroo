@@ -52,6 +52,23 @@ Set the stepsize for the specific slider. ( Needs the [TweakSlider](#TweakSlider
 Accepts ***n*** of the same type of arguments as the slider.
 Arguments can be null to skip setting a step size for the given coordinate.
 
+## TweakDropdownString
+Creates a dropdown menu for `string` fields.
+
+Accepts strings as values for the dropdown.
+
+Alternatively a method name can be provided to supply the dropdown values at runtime.<br/>
+(The bool parameter is only for distinguishing this option. )<br/>
+This method must be `static`, on the same class, return `string[]`, and parameter less.
+
+## TweakSource
+Allows setting the value of things other than static fields using a getter and setter method.
+
+Accepts two method names. These will be called during runtime to get/set the value.<br/>
+The setter method must be `static`, on the same class, return `void`,<br/>
+and have one parameter with the same type as the field.<br/>
+The getter method must be `static`, on the same class, return the same type as the field, and be parameter less.
+
 ## Example
 
 ```c#
@@ -104,4 +121,20 @@ private static readonly HexIndex HexParsed = new(-2, -2);
 
 [Tweak]
 private static readonly Color Color = Color.White;
+
+[Tweak("Options String 1:")]
+[TweakDropdownString("A", "B", "C", "D", "E")]
+private static readonly string s1 = "A";
+
+// A small editor for editing the elemental names of AtomTypes:
+[Tweak("Atom Type Select:")]
+[TweakDropdownString(false, "GetS")]
+private static readonly string AtomId = "om:salt";
+static string[] GetS() { return [..AtomTypes.atoms.Select(type => type.Id)]; }
+
+[Tweak("Atom Type Name:")]
+[TweakSource("SetTest", "GetTest")]
+private static readonly string EditedAtomName;
+static void SetTest(string value) { AtomTypes.GetByID(AtomId).elementalName = Translations.WithAllLanguages(value); }
+static string GetTest() { return AtomTypes.GetByID(AtomId).elementalName; }
 ```
